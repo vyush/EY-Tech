@@ -1,0 +1,23 @@
+# Core dependencies
+python-dotenv>=1.0.1
+pandas>=2.2.2
+numpy>=1.26.4
+
+# Web & UI framework
+gradio>=4.44.0
+
+# PDF generation
+reportlab>=4.2.2
+
+# Google Gemini API (Generative AI)
+google-generativeai>=0.8.3
+
+# Utility libraries
+requests>=2.32.3
+
+# Optional but recommended for local development
+jinja2>=3.1.4
+
+# For compatibility with Google API client calls
+google-api-core>=2.19.0
+google-auth>=2.35.0
