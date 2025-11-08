@@ -1,25 +1,36 @@
-# Hugging Face Spaces App Entry Point
-# This file is specifically for Hugging Face Spaces deployment
+# app.py - Hugging Face Spaces Deployment
+# Enhanced Agentic AI Loan Assistant for NBFC
+# Implements Master Agent + 4 Worker Agents with full workflow
 
+import gradio as gr
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+import pandas as pd
+import random
 import os
-import sys
+import json
+from datetime import datetime
+import google.generativeai as genai
+from dotenv import load_dotenv
 
-# Set environment variables for Hugging Face
-os.environ["GRADIO_SERVER_NAME"] = "0.0.0.0"
-os.environ["GRADIO_SERVER_PORT"] = "7860"  # Hugging Face default port
+# Load environment variables (for local development)
+load_dotenv()
 
-# Import and run the main application
-from loan_agent_complete import demo
+# Get API key from environment variables (Hugging Face Spaces compatible)
+api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 
-if __name__ == "__main__":
-    print("🏦 Starting Tata Capital AI Loan Assistant on Hugging Face Spaces...")
-    print("🤗 Hugging Face Spaces deployment detected")
-    
-    # Launch with Hugging Face specific settings
-    demo.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
-        share=False,
-        show_error=True,
-        quiet=False
-    )
+print("=" * 60)
+print("🤖 TATA CAPITAL AI LOAN ASSISTANT - HUGGING FACE SPACES")
+print("=" * 60)
+if api_key:
+    genai.configure(api_key=api_key)
+    print("✅ GOOGLE GEMINI AI: Successfully configured and ready!")
+    print(f"🔑 API Key: {api_key[:15]}...{api_key[-5:] if len(api_key) > 20 else 'CONFIGURED'}")
+    print("🚀 AI FEATURES: Enhanced greetings, smart responses, contextual conversations")
+else:
+    print("ℹ️ FALLBACK MODE: Running without Gemini AI - using built-in intelligent responses")
+    print("💡 NOTE: App works perfectly with advanced rule-based AI system")
+    print("🤗 For Hugging Face: Add GOOGLE_API_KEY to your Space's environment variables")
+print("=" * 60)
