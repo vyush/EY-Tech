@@ -17,11 +17,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
+print("=" * 60)
+print("🤖 TATA CAPITAL AI LOAN ASSISTANT - AI STATUS CHECK")
+print("=" * 60)
 if api_key:
     genai.configure(api_key=api_key)
-    print("✅ Gemini AI configured successfully")
+    print("✅ GOOGLE GEMINI AI: Successfully configured and ready!")
+    print(f"🔑 API Key: {api_key[:15]}...{api_key[-5:] if len(api_key) > 20 else api_key}")
+    print("🚀 AI FEATURES: Enhanced greetings, smart responses, contextual conversations")
 else:
-    print("ℹ️ Running without Gemini AI - using built-in responses")
+    print("ℹ️ FALLBACK MODE: Running without Gemini AI - using built-in intelligent responses")
+    print("💡 NOTE: App works perfectly with advanced rule-based AI system")
+print("=" * 60)
 
 # ------------------------------
 # 1️⃣ SYNTHETIC CUSTOMER DATABASE (10+ Customers)
@@ -459,13 +466,17 @@ class MasterAgent:
         """Get AI response with fallback"""
         try:
             if api_key:
-                model = genai.GenerativeModel('gemini-pro')
+                print("🤖 AI ACTIVE: Using Google Gemini AI for intelligent response...")
+                model = genai.GenerativeModel('gemini-1.5-flash')
                 response = model.generate_content(prompt)
+                print(f"✅ AI SUCCESS: Generated {len(response.text)} character response")
                 return response.text
             else:
+                print("💡 FALLBACK MODE: Using built-in intelligent responses (no API key)")
                 return fallback_response
         except Exception as e:
-            print(f"AI Error: {e}")
+            print(f"❌ AI ERROR: {e}")
+            print("🔄 SWITCHING TO FALLBACK: Using built-in intelligent responses")
             return fallback_response
     
     def _get_response_options(self):
@@ -756,6 +767,7 @@ All requirements met. Congratulations! 🎊
         self.conversation_stage = "identification"
         
         # AI-enhanced greeting
+        print("👋 GREETING: Attempting to generate AI-enhanced welcome message...")
         ai_prompt = """
         Create a warm, professional greeting for a loan assistant AI.
         Include benefits of Tata Capital loans and ask for customer's name.
@@ -1450,9 +1462,13 @@ Thank you for choosing Tata Capital. Have a great day! 🙏"""
         """
         
         # Try AI response first, then fallback to rule-based
+        print("🔍 TRYING AI: Attempting to generate smart contextual response...")
         ai_response = self._get_ai_response(ai_prompt, None)
         if ai_response:
+            print("🎯 AI RESPONSE USED: Returning AI-generated contextual response")
             return f"🤖 **AI Assistant:** {ai_response}\n\n💡 *Would you like to proceed with your loan application?*"
+        else:
+            print("📋 RULE-BASED RESPONSE: Using enhanced built-in responses")
         
         # Enhanced rule-based responses
         if any(word in msg for word in ["loan", "money", "borrow", "credit", "finance"]):
