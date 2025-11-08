@@ -129,16 +129,16 @@ Verification → Approval Decision → Documentation
 
 ```
 EY-Tech-yg1/
-├── loan_agent_complete.py    # Main application with full features
-├── loan_agent.py            # Basic version
-├── loan_agent_dashboard.py   # Dashboard-focused version
-├── loan_agent_persist.py     # Data persistence version
+├── loan_agent_complete.py    # Main application with all features
 ├── requirements.txt          # Python dependencies
-├── .gitignore               # Git ignore rules
-├── .env                     # Environment variables (excluded)
-├── loan_applications.csv    # Application data (excluded)
-├── conversation_logs.json   # Chat logs (excluded)
-└── README.md               # This file
+├── README.md                # Project documentation
+├── LICENSE                  # MIT License
+├── .gitignore              # Git ignore rules
+├── .env.example            # Environment variables template
+├── .env                    # Environment variables (excluded)
+├── loan_applications.csv   # Application data (excluded)
+├── conversation_logs.json  # Chat logs (excluded)
+└── *.pdf                   # Generated sanction letters (excluded)
 ```
 
 ## 🔧 Configuration
