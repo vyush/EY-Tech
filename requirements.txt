@@ -4,7 +4,7 @@ pandas>=2.2.2
 numpy>=1.26.4
 
 # Web & UI framework (HF Spaces compatible version)
-gradio==3.50.2
+gradio==5.49.1
 
 # PDF generation
 reportlab>=4.2.2

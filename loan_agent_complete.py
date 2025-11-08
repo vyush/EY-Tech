@@ -1496,7 +1496,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         """)
         
         # Main chat interface with quick action buttons
-        chatbot = gr.Chatbot(height=500, label="💬 Tata Capital Loan Assistant")
+        chatbot = gr.Chatbot(height=500, type='messages', label="💬 Tata Capital Loan Assistant")
         msg = gr.Textbox(placeholder="Type your message or use quick buttons below...", label="Your Message")
         
         # Quick action buttons in rows
@@ -1538,12 +1538,13 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         # Handle all interactions
         def respond(message, history):
             bot_response = master.process_message(message, history)
-            # Convert to proper message format for Gradio 3.x
+            # Convert to proper message format for Gradio 5.x
             if history is None:
                 history = []
             
-            # Add user message and bot response in Gradio 3.x format
-            history.append([message, bot_response])
+            # Add user message and bot response in Gradio 5.x format
+            history.append({"role": "user", "content": message})
+            history.append({"role": "assistant", "content": bot_response})
             return history, ""
         
         def button_click(message):
@@ -1551,9 +1552,10 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             current_history = chatbot.value or []
             bot_response = master.process_message(message, current_history)
             
-            # Add to history in Gradio 3.x format
+            # Add to history in Gradio 5.x format
             new_history = current_history.copy()
-            new_history.append([message, bot_response])
+            new_history.append({"role": "user", "content": message})
+            new_history.append({"role": "assistant", "content": bot_response})
             return new_history, ""
         
         def reset_conversation():
