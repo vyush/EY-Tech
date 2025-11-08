@@ -194,24 +194,45 @@ class VerificationAgent:
         if name in customers:
             data = customers[name]
             if data["kyc"]:
-                return f"""✅ **KYC Verification Successful**
-━━━━━━━━━━━━━━━━━━━━
-👤 Name: {name}
-📱 Phone: {data['phone']}
-📍 Address: {data['address']}
-🏙️ City: {data['city']}
-━━━━━━━━━━━━━━━━━━━━
-All documents verified. Moving to credit assessment..."""
+                # Update verification timestamp in database
+                customers[name]["last_verified"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                return f"""✅ **KYC Verification Successful** ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 **CUSTOMER PROFILE VERIFIED**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 **Name:** {name}
+📱 **Phone:** {data['phone']} ✅ Verified
+� **Email:** {name.lower()}@email.com ✅ Verified  
+�📍 **Address:** {data['address']} ✅ Verified
+🏙️ **City:** {data['city']}
+💳 **Credit Score:** {data['credit_score']}/850 📊
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 **All documents verified successfully!**
+🚀 **Status:** Ready for loan processing
+⏱️ **Verified on:** {datetime.now().strftime("%d %b %Y, %I:%M %p")}
+
+**Moving to credit assessment and loan eligibility...**"""
             else:
-                return f"""⚠️ **KYC Pending for {name}**
+                return f"""⚠️ **KYC Pending for {name}** ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 **ACTION REQUIRED**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-We need to complete your KYC verification. Please share:
-1. Aadhaar Card
-2. PAN Card  
-3. Address Proof
+We need to **complete your KYC verification**:
 
-You can upload these documents or visit the nearest branch.
-For now, I cannot proceed with the loan application."""
+📄 **Missing Documents:**
+1. ✅ Aadhaar Card (Upload or verify)
+2. ✅ PAN Card (Tax verification)
+3. ✅ Address Proof (Latest utility bill)
+
+🚀 **Digital KYC Options:**
+• 📱 Upload via app (5 minutes)
+• 🏦 Visit nearest branch  
+• 📞 Video KYC call
+
+⚠️ **Note:** Cannot proceed with loan without KYC completion."""
         
         # Handle new customers
         elif customer_data:
@@ -432,6 +453,45 @@ class MasterAgent:
         self.verification_agent = VerificationAgent()
         self.underwriting_agent = UnderwritingAgent()
         self.sanction_generator = SanctionLetterGenerator()
+        self.conversation_history = []
+    
+    def _get_ai_response(self, prompt, fallback_response):
+        """Get AI response with fallback"""
+        try:
+            if api_key:
+                model = genai.GenerativeModel('gemini-pro')
+                response = model.generate_content(prompt)
+                return response.text
+            else:
+                return fallback_response
+        except Exception as e:
+            print(f"AI Error: {e}")
+            return fallback_response
+    
+    def _get_response_options(self):
+        """Get contextual response options based on current stage"""
+        stage = self.conversation_stage
+        
+        if stage == "greeting":
+            return ["👋 Hello, I'm ready to start", "🆔 I'm an existing customer", "🆕 I'm new to Tata Capital", "❓ Tell me about your services"]
+        elif stage == "identification":
+            return ["📱 Verify my phone number", "📧 Verify my email", "🆔 Check my KYC status", "✍️ I'll provide details manually"]
+        elif stage == "kyc_verification":
+            return ["✅ Yes, that's correct", "❌ No, please update", "📝 I need to update details", "🔄 Re-verify"]
+        elif stage in ["sales_pitch", "new_customer_pitch"]:
+            return ["✅ Yes, I'm interested!", "💰 Show me interest rates", "📊 Check my eligibility", "📞 I'll call back later"]
+        elif stage == "new_customer_info":
+            return ["💼 My salary: ₹30k-50k", "💼 My salary: ₹50k-75k", "💼 My salary: ₹75k-1L", "💼 My salary: ₹1L+"]
+        elif stage == "loan_requirement":
+            return ["💰 I need ₹2 Lakh", "💰 I need ₹3-5 Lakh", "💰 I need ₹5-10 Lakh", "📝 Different amount"]
+        elif stage == "loan_type_selection":
+            return ["💼 Personal Loan", "🏢 Business Loan", "💒 Wedding Loan", "🏥 Medical Emergency"]
+        elif stage == "terms_confirmation":
+            return ["✅ Accept these terms", "⏱️ Different tenure", "💰 Different amount", "📋 Need more details"]
+        elif stage == "final_approval":
+            return ["📄 Generate sanction letter", "📧 Email me details", "📞 Call me back", "🏦 Visit branch"]
+        else:
+            return ["✅ Yes", "❌ No", "📞 Tell me more", "🔄 Start over"]
     
     def process_message(self, message, history):
         msg = message.strip().lower()
@@ -449,6 +509,56 @@ class MasterAgent:
         # Stage 2: Identification  
         elif self.conversation_stage == "identification":
             return self._identify_customer(message)
+        
+        # Stage 2.3: KYC Verification for existing customers
+        elif self.conversation_stage == "kyc_verification":
+            if any(word in msg for word in ["yes", "complete", "verify", "proceed", "ok"]):
+                # Simulate KYC completion for demo
+                customers[self.context["name"]]["kyc"] = True
+                customers[self.context["name"]]["last_verified"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                self.conversation_stage = "sales_pitch"
+                
+                return f"""✅ **KYC Verification Completed Successfully!** ✅
+
+🎉 **{self.context["name"]}, your profile is now fully verified!**
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 **VERIFICATION STATUS UPDATED**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ **Identity:** Verified  
+✅ **Address:** Verified
+✅ **Phone:** Verified
+✅ **Documents:** All uploaded successfully
+⏱️ **Completed:** {datetime.now().strftime("%d %b %Y, %I:%M %p")}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 **Now you're eligible for instant loan approval!**
+Ready to explore your exclusive pre-approved offers? 💰"""
+            
+            elif any(word in msg for word in ["no", "later", "skip"]):
+                return """⚠️ **KYC verification is mandatory** for loan processing as per RBI guidelines.
+
+📋 **What you can do:**
+• ✅ Complete KYC now (takes 5 minutes)
+• 📱 Upload documents via mobile app
+• 🏦 Visit nearest branch
+• 📞 Schedule video KYC call
+
+**Without KYC, I cannot proceed with your loan application.**
+Would you like to complete it now? Just say "Yes"! 👇"""
+            
+            else:
+                return """🔍 **KYC Verification Required**
+
+As per **RBI guidelines**, all loan applications need verified KYC.
+
+📄 **Quick Digital KYC:**
+• Takes only **5 minutes**
+• Upload documents from phone
+• Instant verification
+• No branch visit needed
+
+**Ready to complete your KYC?** Just say **"Yes"**! 🚀"""
         
         # Stage 2.5: New Customer Pitch
         elif self.conversation_stage == "new_customer_pitch":
@@ -644,17 +754,36 @@ All requirements met. Congratulations! 🎊
     
     def _greet_customer(self):
         self.conversation_stage = "identification"
-        return """👋 **Welcome to Tata Capital Digital Loan Assistant!**
+        
+        # AI-enhanced greeting
+        ai_prompt = """
+        Create a warm, professional greeting for a loan assistant AI.
+        Include benefits of Tata Capital loans and ask for customer's name.
+        Keep it under 150 words, use emojis, and be engaging.
+        """
+        
+        ai_greeting = self._get_ai_response(ai_prompt, "")
+        
+        base_greeting = """👋 **Welcome to Tata Capital Digital Loan Assistant!** 👋
 
-🚀 **India's #1 NBFC for Personal Loans!**
+🏆 **India's Most Trusted NBFC** - Serving 30 lakh+ customers!
 
-I'm here to help you get **instant personal loans** with:
+🚀 **Get Instant Personal Loans with:**
 • ⚡ **30-second approval** process
 • 💰 **Loans up to ₹50 lakhs** 
 • 🏆 **Interest rates from 10.99%**
 • 📱 **100% digital** - No branch visit needed!
+• 🎯 **Same-day disbursement** available!
 
-**May I know your name?** Just type it below! 👇"""
+✨ **7 Loan Types Available:** Personal, Business, Wedding, Medical, Travel, Education, Home Renovation
+
+**🔍 Let's start! May I know your name?** 
+Type it below or choose from our customer database! 👇"""
+        
+        if ai_greeting:
+            return f"{ai_greeting}\n\n{base_greeting}"
+        else:
+            return base_greeting
     
     def _identify_customer(self, message):
         # Extract name from message
@@ -670,20 +799,42 @@ Just type something like: **"My name is John"** or **"I'm Sarah"** 👇"""
         for existing_name in customers.keys():
             if existing_name.lower() == name.lower():
                 self.context["name"] = existing_name
-                self.context["customer_data"] = customers[existing_name]
+                customer_data = customers[existing_name]
+                self.context["customer_data"] = customer_data
                 self.context["is_existing"] = True
-                self.conversation_stage = "sales_pitch"
-                return f"""🎉 **Welcome back, {existing_name}!** 
+                self.conversation_stage = "kyc_verification" if not customer_data["kyc"] else "sales_pitch"
+                
+                # Show KYC status and customer profile
+                kyc_status = "✅ **VERIFIED**" if customer_data["kyc"] else "⚠️ **PENDING**"
+                credit_rating = "EXCELLENT" if customer_data["credit_score"] >= 750 else "GOOD" if customer_data["credit_score"] >= 700 else "FAIR"
+                
+                base_response = f"""🎉 **Welcome back, {existing_name}!** 🎉
 
-🔍 I found your profile in our system - you're a **VALUED CUSTOMER**!
+🔍 **CUSTOMER PROFILE LOADED**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 **Name:** {existing_name}
+📍 **City:** {customer_data['city']}
+📞 **Phone:** {customer_data['phone']}
+🆔 **KYC Status:** {kyc_status}
+💳 **Credit Score:** {customer_data['credit_score']}/850 ({credit_rating})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✨ **EXCLUSIVE BENEFITS for you:**
-• 🏆 **Pre-approved loan**: Up to ₹{customers[existing_name]["pre_approved_limit"]:,}
-• ⚡ **Instant approval** - No documentation needed!
-• 💰 **Special rate**: Starting from **10.99% p.a.**
-• 🎯 **Priority processing** as existing customer
+✨ **EXCLUSIVE VIP BENEFITS:**
+• 🏆 **Pre-approved limit**: ₹{customer_data["pre_approved_limit"]:,}
+• ⚡ **Instant approval** - Priority processing!
+• 💰 **Special rate**: From **10.99% p.a.**
+• 🎯 **Zero documentation** for pre-approved amounts!
 
-Ready to explore your **exclusive pre-approved offers**? 🚀"""
+"""
+                
+                if customer_data["kyc"]:
+                    return base_response + "🚀 **Ready to explore your exclusive pre-approved offers?**"
+                else:
+                    return base_response + """
+⚠️ **ACTION REQUIRED:** KYC verification pending
+We need to complete your KYC before loan processing.
+
+� **Would you like to complete KYC verification now?**"""
         
         # New customer - create profile and be persuasive
         else:
@@ -1283,31 +1434,54 @@ Thank you for choosing Tata Capital. Have a great day! 🙏"""
             # Still continue the conversation even if saving fails
     
     def _smart_response(self, message):
-        """Smart context-aware responses without external API dependency"""
+        """Enhanced AI-powered smart responses with context awareness"""
         msg = message.lower()
         
-        # Loan-related queries
-        if any(word in msg for word in ["loan", "money", "borrow", "credit"]):
-            return """💰 **Perfect! You're in the right place!**
+        # Create AI prompt for intelligent conversation
+        ai_prompt = f"""
+        You are a professional loan assistant for Tata Capital NBFC. 
+        Current conversation stage: {self.conversation_stage}
+        Customer context: {self.context}
+        Customer message: {message}
+        
+        Respond in a helpful, professional manner focusing on loan services.
+        Keep response under 200 words and include relevant emojis.
+        Always guide towards loan application completion.
+        """
+        
+        # Try AI response first, then fallback to rule-based
+        ai_response = self._get_ai_response(ai_prompt, None)
+        if ai_response:
+            return f"🤖 **AI Assistant:** {ai_response}\n\n💡 *Would you like to proceed with your loan application?*"
+        
+        # Enhanced rule-based responses
+        if any(word in msg for word in ["loan", "money", "borrow", "credit", "finance"]):
+            return """💰 **Perfect! You're in the right place!** 💰
             
-Tata Capital offers **instant personal loans** with:
+🏆 **Tata Capital - India's #1 NBFC** offers:
 • ✅ **Pre-approved limits** up to ₹50 lakhs
 • ⚡ **30-second approval** process  
 • 💳 **Flexible EMIs** from 12-60 months
-• 🏆 **Lowest interest rates**
+• 🏆 **Interest rates from 10.99%**
+• 📱 **100% digital** - No branch visits!
 
-Ready to check your pre-approved offer? Just share your name from our customer list!"""
+🎯 **Ready to check your pre-approved offer?** 
+Just type your name or select an option below!"""
         
         # Rate/interest queries  
-        elif any(word in msg for word in ["rate", "interest", "charges"]):
-            return """📊 **Our Interest Rates:**
-━━━━━━━━━━━━━━━━━━━━
-• **10.99% p.a.** - For amounts up to ₹3 lakhs
-• **11.5% p.a.** - For higher amounts
-• **Zero processing fees** for pre-approved customers
-• **No hidden charges** - complete transparency
+        elif any(word in msg for word in ["rate", "interest", "charges", "cost"]):
+            return """📊 **Our Competitive Interest Rates:** 📊
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 **Personal Loan:** 10.99% p.a. onwards
+🏢 **Business Loan:** 11.5% p.a. onwards  
+💒 **Wedding Loan:** 10.99% + special discount
+🏥 **Medical Loan:** 9.99% emergency rate
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ **Zero processing fees** for pre-approved customers
+✅ **No hidden charges** - complete transparency
 
-💡 Your exact rate depends on your credit profile. Want to check your personalized offer?"""
+� **Your exact rate depends on your credit profile!**
+Want to check your personalized rate? Just share your name! 👇"""
         
         # EMI/payment queries
         elif any(word in msg for word in ["emi", "payment", "monthly"]):
@@ -1497,13 +1671,21 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         
         # Main chat interface with quick action buttons
         chatbot = gr.Chatbot(height=500, type='messages', label="💬 Tata Capital Loan Assistant")
-        msg = gr.Textbox(placeholder="Type your message or use quick buttons below...", label="Your Message")
+        msg = gr.Textbox(placeholder="Type your message or use suggested options below...", label="Your Message")
+        
+        # Dynamic response buttons that change based on conversation stage
+        gr.Markdown("### 💬 Suggested Responses")
+        with gr.Row():
+            option1_btn = gr.Button("👋 Hello, I'm ready to start", variant="primary", visible=True)
+            option2_btn = gr.Button("🆔 I'm an existing customer", variant="secondary", visible=True) 
+            option3_btn = gr.Button("🆕 I'm new to Tata Capital", variant="secondary", visible=True)
+            option4_btn = gr.Button("❓ Tell me about your services", variant="secondary", visible=True)
         
         # Quick action buttons in rows
         gr.Markdown("### 🚀 Quick Actions")
         with gr.Row():
             hello_btn = gr.Button("👋 Start Application", variant="primary")
-            existing_btn = gr.Button("� Existing Customer", variant="secondary") 
+            existing_btn = gr.Button("🔍 Existing Customer", variant="secondary") 
             new_btn = gr.Button("🆕 New Customer", variant="secondary")
             reset_btn = gr.Button("🔄 Reset Chat", variant="secondary")
         
@@ -1535,9 +1717,13 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             proceed_btn = gr.Button("🚀 Proceed", variant="outline")
             help_btn = gr.Button("❓ Help", variant="outline")
         
-        # Handle all interactions
+        # Handle all interactions with dynamic button updates
         def respond(message, history):
             bot_response = master.process_message(message, history)
+            
+            # Get current stage response options
+            response_options = master._get_response_options()
+            
             # Convert to proper message format for Gradio 5.x
             if history is None:
                 history = []
@@ -1545,31 +1731,65 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             # Add user message and bot response in Gradio 5.x format
             history.append({"role": "user", "content": message})
             history.append({"role": "assistant", "content": bot_response})
-            return history, ""
+            
+            # Update dynamic buttons
+            button_updates = []
+            for i, option in enumerate(response_options[:4]):  # Limit to 4 buttons
+                button_updates.append(gr.Button(option, visible=True))
+            while len(button_updates) < 4:
+                button_updates.append(gr.Button("", visible=False))
+            
+            return history, "", *button_updates
         
         def button_click(message):
             """Handle button clicks"""
             current_history = chatbot.value or []
             bot_response = master.process_message(message, current_history)
             
+            # Get current stage response options
+            response_options = master._get_response_options()
+            
             # Add to history in Gradio 5.x format
             new_history = current_history.copy()
             new_history.append({"role": "user", "content": message})
             new_history.append({"role": "assistant", "content": bot_response})
-            return new_history, ""
+            
+            # Update dynamic buttons
+            button_updates = []
+            for i, option in enumerate(response_options[:4]):  # Limit to 4 buttons
+                button_updates.append(gr.Button(option, visible=True))
+            while len(button_updates) < 4:
+                button_updates.append(gr.Button("", visible=False))
+            
+            return new_history, "", *button_updates
         
         def reset_conversation():
             reset_master()
             return []
         
-        # Event handlers
-        msg.submit(respond, [msg, chatbot], [chatbot, msg])
+        # Event handlers with dynamic button updates
+        msg.submit(respond, [msg, chatbot], [chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
         
-        # Quick action buttons - using lambda with button_click
-        hello_btn.click(lambda: button_click("Hello"), outputs=[chatbot, msg])
-        existing_btn.click(lambda: button_click("I'm an existing customer"), outputs=[chatbot, msg])
-        new_btn.click(lambda: button_click("I'm a new customer"), outputs=[chatbot, msg])
-        reset_btn.click(reset_conversation, outputs=[chatbot])
+        # Dynamic response buttons
+        option1_btn.click(lambda btn: button_click(btn.value if hasattr(btn, 'value') else "Hello"), 
+                         outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        option2_btn.click(lambda btn: button_click(btn.value if hasattr(btn, 'value') else "I'm an existing customer"), 
+                         outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        option3_btn.click(lambda btn: button_click(btn.value if hasattr(btn, 'value') else "I'm new to Tata Capital"), 
+                         outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        option4_btn.click(lambda btn: button_click(btn.value if hasattr(btn, 'value') else "Tell me about services"), 
+                         outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        
+        # Quick action buttons
+        hello_btn.click(lambda: button_click("Hello"), outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        existing_btn.click(lambda: button_click("I'm an existing customer"), outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        new_btn.click(lambda: button_click("I'm a new customer"), outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        
+        def reset_with_buttons():
+            reset_master()
+            return [], "", gr.Button("👋 Hello, I'm ready to start", visible=True), gr.Button("🆔 I'm an existing customer", visible=True), gr.Button("🆕 I'm new to Tata Capital", visible=True), gr.Button("❓ Tell me about your services", visible=True)
+        
+        reset_btn.click(reset_with_buttons, outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
         
         # Loan type buttons
         personal_btn.click(lambda: button_click("Personal Loan"), outputs=[chatbot, msg])
