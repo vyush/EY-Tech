@@ -1,3 +1,23 @@
+---
+title: Tata Capital AI Loan Assistant
+emoji: 🏦
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: "4.44.0"
+app_file: app.py
+pinned: false
+license: mit
+short_description: Advanced AI-powered loan assistant with agentic architecture for NBFC loan processing
+tags:
+  - finance
+  - loan
+  - ai-assistant
+  - gradio
+  - nbfc
+  - fintech
+---
+
 # 🏦 Tata Capital - AI Loan Assistant
 
 An advanced **Agentic AI Loan Assistant** for NBFC (Non-Banking Financial Company) with complete loan processing workflow using Master Agent + Worker Agents architecture.
