@@ -1671,7 +1671,7 @@ if __name__ == "__main__":
     launch_kwargs = {
         "server_name": "0.0.0.0" if os.getenv("GRADIO_SERVER_NAME") else "127.0.0.1",
         "server_port": int(os.getenv("GRADIO_SERVER_PORT", 7861)),
-        "share": False,  # Set to True for temporary public sharing
+        "share": True,  # Set to True for temporary public sharing
         "show_error": True,
         "quiet": False
     }
