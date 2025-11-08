@@ -17,10 +17,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
-if not api_key:
-    raise ValueError("❌ GEMINI_API_KEY not found in .env file!")
-
-genai.configure(api_key=api_key)
+if api_key:
+    genai.configure(api_key=api_key)
+    print("✅ Gemini AI configured successfully")
+else:
+    print("ℹ️ Running without Gemini AI - using built-in responses")
 
 # ------------------------------
 # 1️⃣ SYNTHETIC CUSTOMER DATABASE (10+ Customers)
@@ -1660,4 +1661,23 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         - Pandas for data management
         """)
 
-demo.launch(share=False)
+# Launch configuration for different environments
+if __name__ == "__main__":
+    # Check if running in a containerized environment
+    import socket
+    hostname = socket.gethostname()
+    
+    # Configure launch parameters
+    launch_kwargs = {
+        "server_name": "0.0.0.0" if os.getenv("GRADIO_SERVER_NAME") else "127.0.0.1",
+        "server_port": int(os.getenv("GRADIO_SERVER_PORT", 7861)),
+        "share": False,  # Set to True for temporary public sharing
+        "show_error": True,
+        "quiet": False
+    }
+    
+    print(f"🏦 Tata Capital AI Loan Assistant")
+    print(f"🚀 Starting server on {launch_kwargs['server_name']}:{launch_kwargs['server_port']}")
+    print(f"📱 Access at: http://{'localhost' if launch_kwargs['server_name'] == '127.0.0.1' else launch_kwargs['server_name']}:{launch_kwargs['server_port']}")
+    
+    demo.launch(**launch_kwargs)

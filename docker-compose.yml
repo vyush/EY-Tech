@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  tata-capital-loan-assistant:
+    build: .
+    ports:
+      - "7861:7861"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    volumes:
+      # Mount volume for persistent data (optional)
+      - ./data:/app/data
+    restart: unless-stopped
+    container_name: tata-capital-ai
+    
+# Optional: Add a reverse proxy (uncomment if needed)
+# nginx:
+#   image: nginx:alpine
+#   ports:
+#     - "80:80"
+#   volumes:
+#     - ./nginx.conf:/etc/nginx/nginx.conf
+#   depends_on:
+#     - tata-capital-loan-assistant
