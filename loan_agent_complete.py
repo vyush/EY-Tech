@@ -467,9 +467,10 @@ class MasterAgent:
         try:
             if api_key:
                 print("🤖 AI ACTIVE: Using Google Gemini AI for intelligent response...")
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                model = genai.GenerativeModel('gemini-2.5-flash')
                 response = model.generate_content(prompt)
                 print(f"✅ AI SUCCESS: Generated {len(response.text)} character response")
+                print(f"🎯 AI RESPONSE PREVIEW: {response.text[:100]}...")
                 return response.text
             else:
                 print("💡 FALLBACK MODE: Using built-in intelligent responses (no API key)")
@@ -713,8 +714,11 @@ Visit any Tata Capital branch or complete digital KYC anytime at www.tatacapital
 
 Thank you for your interest! 🙏"""
         
-        # Stage 6: Underwriting
+        # Stage 6: AI-Enhanced Underwriting
         elif self.conversation_stage == "underwriting":
+            print("📊 AI UNDERWRITING: Assessing loan eligibility with AI insights...")
+            
+            # Get assessment result
             result = self.underwriting_agent.assess_eligibility(
                 self.context["name"],
                 self.context["amount"],
@@ -722,17 +726,49 @@ Thank you for your interest! 🙏"""
                 self.context.get("customer_data")
             )
             
+            # AI-enhanced decision communication
+            ai_prompt = f"""
+            Create a professional loan decision message.
+            Customer: {self.context['name']}
+            Loan amount: ₹{self.context['amount']:,}
+            Decision: {result['status']}
+            Credit score: {result.get('credit_score', 'unknown')}
+            
+            If approved: Create excitement, highlight benefits, mention next steps
+            If rejected: Be empathetic, suggest alternatives, maintain relationship
+            
+            Professional, warm tone. Use emojis. Keep under 100 words.
+            """
+            
+            ai_decision_msg = self._get_ai_response(ai_prompt, "")
+            
             # Save to CSV - this will now work properly
             self._save_application(result)
             
             if result["status"] == "Approved":
                 self.conversation_stage = "sanction"
-                return result["decision"] + "\n\n" + self._offer_sanction_letter()
+                base_approval = result["decision"] + "\n\n" + self._offer_sanction_letter()
+                
+                if ai_decision_msg:
+                    return f"🤖 **AI-Enhanced Approval Message:**\n\n{ai_decision_msg}\n\n📋 **Official Decision:**\n{base_approval}"
+                else:
+                    return base_approval
             elif result["status"] == "Conditional":
                 self.conversation_stage = "conditional_docs"
-                return result["decision"] + "\n\n📄 Would you like to upload documents now for instant approval?"
+                base_conditional = result["decision"] + "\n\n📄 Would you like to upload documents now for instant approval?"
+                
+                if ai_decision_msg:
+                    return f"🤖 **AI-Enhanced Message:**\n\n{ai_decision_msg}\n\n📋 **Details:**\n{base_conditional}"
+                else:
+                    return base_conditional
             else:
                 self.conversation_stage = "completed"
+                base_rejection = result["decision"]
+                
+                if ai_decision_msg:
+                    return f"🤖 **AI-Enhanced Response:**\n\n{ai_decision_msg}\n\n📋 **Official Decision:**\n{base_rejection}"
+                else:
+                    return base_rejection
                 return result["decision"] + "\n\n" + self._end_conversation()
         
         # Stage 7: Conditional Documentation
@@ -820,6 +856,17 @@ Just type something like: **"My name is John"** or **"I'm Sarah"** 👇"""
                 kyc_status = "✅ **VERIFIED**" if customer_data["kyc"] else "⚠️ **PENDING**"
                 credit_rating = "EXCELLENT" if customer_data["credit_score"] >= 750 else "GOOD" if customer_data["credit_score"] >= 700 else "FAIR"
                 
+                # AI-enhanced customer welcome message
+                print(f"🎯 AI ENHANCEMENT: Creating personalized welcome for {existing_name}")
+                ai_prompt = f"""
+                Create a personalized welcome message for returning customer {existing_name} from {customer_data['city']}.
+                Customer details: Credit score {customer_data['credit_score']}, Pre-approved limit ₹{customer_data["pre_approved_limit"]:,}, KYC: {customer_data['kyc']}.
+                Make it warm, professional, and highlight their VIP status. Include relevant emojis.
+                Keep under 100 words. Focus on exclusive benefits and next steps.
+                """
+                
+                ai_welcome = self._get_ai_response(ai_prompt, "")
+                
                 base_response = f"""🎉 **Welcome back, {existing_name}!** 🎉
 
 🔍 **CUSTOMER PROFILE LOADED**
@@ -836,6 +883,8 @@ Just type something like: **"My name is John"** or **"I'm Sarah"** 👇"""
 • ⚡ **Instant approval** - Priority processing!
 • 💰 **Special rate**: From **10.99% p.a.**
 • 🎯 **Zero documentation** for pre-approved amounts!
+
+{ai_welcome if ai_welcome else ""}
 
 """
                 
@@ -871,10 +920,33 @@ Want to check your eligibility right now? 🎯"""
     
     def _show_loan_pitch(self):
         self.conversation_stage = "loan_type_selection"
-        return self.sales_agent.pitch_loan(
-            self.context["name"],
-            self.context["customer_data"]
-        ) + "\n\n" + self._show_loan_types()
+        
+        # AI-enhanced personalized loan pitch
+        print("💼 AI PITCH: Creating personalized loan sales pitch...")
+        customer_data = self.context["customer_data"]
+        name = self.context["name"]
+        
+        ai_prompt = f"""
+        Create a compelling, personalized loan sales pitch for {name}.
+        Customer profile: Credit score {customer_data['credit_score']}, Pre-approved ₹{customer_data["pre_approved_limit"]:,}, City: {customer_data['city']}.
+        
+        Make it persuasive, professional, and exciting. Highlight:
+        - Instant approval benefits
+        - Competitive rates (10.99%)
+        - Multiple loan types available
+        - Pre-approved advantage
+        
+        Keep under 150 words, use emojis, create urgency and excitement. End with asking about loan type preference.
+        """
+        
+        ai_pitch = self._get_ai_response(ai_prompt, "")
+        
+        base_pitch = self.sales_agent.pitch_loan(self.context["name"], self.context["customer_data"])
+        
+        if ai_pitch:
+            return f"🤖 **AI-Personalized Offer for {name}:**\n\n{ai_pitch}\n\n{base_pitch}\n\n" + self._show_loan_types()
+        else:
+            return base_pitch + "\n\n" + self._show_loan_types()
     
     def _handle_new_customer_interest(self):
         """Handle when new customer shows interest"""
@@ -911,7 +983,29 @@ What have you got to lose? 🤔"""
     
     def _handle_objection(self):
         self.conversation_stage = "sales_pitch"  # Keep trying
-        return """I completely understand! 😊 
+        
+        # AI-powered objection handling
+        print("🛡️ AI OBJECTION HANDLING: Creating persuasive response...")
+        name = self.context["name"]
+        customer_data = self.context.get("customer_data", {})
+        
+        ai_prompt = f"""
+        Customer {name} just showed objection to a loan offer. They might be hesitant, skeptical, or not interested.
+        Customer profile: Credit score {customer_data.get('credit_score', 'unknown')}, Pre-approved limit {customer_data.get('pre_approved_limit', 'unknown')}.
+        
+        Create a persuasive, empathetic response that:
+        - Acknowledges their concern with understanding
+        - Highlights risk-free exploration (no obligation)
+        - Creates curiosity about their pre-approved benefits
+        - Uses social proof and FOMO (fear of missing out)
+        - Ends with a simple, low-pressure next step
+        
+        Be warm, professional, persuasive. Keep under 120 words with emojis.
+        """
+        
+        ai_objection_response = self._get_ai_response(ai_prompt, "")
+        
+        base_response = """I completely understand! 😊 
 
 But let me share something exciting - you already have **pre-approved offers** waiting! This means:
 
@@ -920,9 +1014,12 @@ But let me share something exciting - you already have **pre-approved offers** w
 📊 **Best rates** - starting from just 10.99%
 ✨ **No hidden charges** - complete transparency
 
-Even if you don't need money right now, wouldn't you like to know your **FREE pre-approved limit**? It takes just 30 seconds! 
-
-What do you say? Ready to discover your offer? 🚀"""
+Even if you don't need money right now, wouldn't you like to know your **FREE pre-approved limit**? It takes just 30 seconds!"""
+        
+        if ai_objection_response:
+            return f"🤖 **AI-Powered Response:**\n\n{ai_objection_response}\n\n📋 **Standard Benefits:**\n{base_response}\n\nWhat do you say? Ready to discover your offer? 🚀"
+        else:
+            return base_response + "\n\nWhat do you say? Ready to discover your offer? 🚀"
     
     def _handle_tenure_change(self, msg):
         """Handle tenure modification requests"""
@@ -951,15 +1048,31 @@ What do you say? Ready to discover your offer? 🚀"""
         Just tell me: "24 months" or "3 years" etc."""
     
     def _collect_new_customer_info(self, message):
-        """Collect information from new customers step by step"""
+        """AI-enhanced information collection from new customers"""
         name = self.context["name"]
         
-        # Step 1: Collect salary
+        # Step 1: Collect salary with AI encouragement
         if "salary" not in self.context:
             salary = self._extract_salary(message)
             if salary:
                 self.context["salary"] = salary
-                return f"""💰 **Great! Monthly salary: ₹{salary:,}**
+                
+                # AI-enhanced salary confirmation
+                print("💰 AI SALARY ANALYSIS: Creating personalized eligibility preview...")
+                ai_prompt = f"""
+                Customer {name} just shared salary of ₹{salary:,}/month.
+                Create an encouraging message that:
+                - Congratulates them on good salary
+                - Hints at loan eligibility (3-5x salary typically)
+                - Creates excitement about next step (location)
+                - Mentions city-specific offers
+                
+                Keep under 80 words, professional, use emojis.
+                """
+                
+                ai_salary_response = self._get_ai_response(ai_prompt, "")
+                
+                base_response = f"""💰 **Great! Monthly salary: ₹{salary:,}**
 
 📋 **Step 2: Location** 
 ━━━━━━━━━━━━━━━━━━━━
@@ -971,6 +1084,11 @@ Which city are you based in?
 • "Delhi NCR"
 
 **Different cities have different offers!** 🏙️"""
+                
+                if ai_salary_response:
+                    return f"🤖 **AI Analysis:**\n{ai_salary_response}\n\n{base_response}"
+                else:
+                    return base_response
             else:
                 return """💰 **Please share your monthly salary:**
 
@@ -1903,17 +2021,32 @@ if __name__ == "__main__":
     import socket
     hostname = socket.gethostname()
     
-    # Configure launch parameters
-    launch_kwargs = {
-        "server_name": "0.0.0.0" if os.getenv("GRADIO_SERVER_NAME") else "127.0.0.1",
-        "server_port": int(os.getenv("GRADIO_SERVER_PORT", 7861)),
-        "share": True,  # Set to True for temporary public sharing
-        "show_error": True,
-        "quiet": False
-    }
+    # Configure launch parameters - prioritize local access
+    is_huggingface = os.getenv("SPACE_ID") is not None  # Detect if running on HF Spaces
+    
+    if is_huggingface:
+        # Hugging Face Spaces configuration
+        launch_kwargs = {
+            "server_name": "0.0.0.0",
+            "server_port": 7860,
+            "share": False,
+            "show_error": True,
+            "quiet": False
+        }
+        print(f"🚀 Running on Hugging Face Spaces")
+    else:
+        # Local development configuration
+        launch_kwargs = {
+            "server_name": "127.0.0.1",  # Force localhost for local development
+            "server_port": 7861,
+            "share": False,  # Disable share for local testing
+            "show_error": True,
+            "quiet": False
+        }
     
     print(f"🏦 Tata Capital AI Loan Assistant")
     print(f"🚀 Starting server on {launch_kwargs['server_name']}:{launch_kwargs['server_port']}")
-    print(f"📱 Access at: http://{'localhost' if launch_kwargs['server_name'] == '127.0.0.1' else launch_kwargs['server_name']}:{launch_kwargs['server_port']}")
+    print(f"📱 Access at: http://localhost:{launch_kwargs['server_port']}")
+    print(f"🔗 Alternative: http://127.0.0.1:{launch_kwargs['server_port']}")
     
     demo.launch(**launch_kwargs)
