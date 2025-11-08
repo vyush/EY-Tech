@@ -3,8 +3,8 @@ python-dotenv>=1.0.1
 pandas>=2.2.2
 numpy>=1.26.4
 
-# Web & UI framework
-gradio>=4.44.0
+# Web & UI framework (stable versions for HF Spaces)
+gradio==4.32.2
 
 # PDF generation
 reportlab>=4.2.2
