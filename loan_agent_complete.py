@@ -126,14 +126,14 @@ class SalesAgent:
         
         pitch = f"""🎉 **EXCLUSIVE OFFER FOR {name.upper()}!**
 
-🚀 **You have a SPECIAL pre-approved loan of ₹{limit:,}** waiting for you!
+🚀 **You have a SPECIAL pre-approved loan of Rs.{limit:,}** waiting for you!
 
 ✨ **Your VIP Benefits:**
-• 🏆 **Premium rate**: Just **10.99% p.a.** (Market rate: 12-18%)
-• ⚡ **30-second approval** - No waiting, no hassles!
-• 💳 **Flexible EMIs**: Choose 12-60 months
-• 🎯 **Zero processing fees** (Save ₹{int(limit*0.02):,}!)
-• 📱 **100% digital** - Apply from home
+- 🏆 **Premium rate**: Just **10.99% p.a.** (Market rate: 12-18%)
+- ⚡ **30-second approval** - No waiting, no hassles!
+- 💳 **Flexible EMIs**: Choose 12-60 months
+- 🎯 **Zero processing fees** (Save Rs.{int(limit*0.02):,}!)
+- 📱 **100% digital** - Apply from home
 
 """
         
@@ -147,10 +147,10 @@ class SalesAgent:
         
         pitch += f"""� **URGENCY ALERT**: This pre-approved offer expires in 7 days!
 
-🎯 **Ready to claim your ₹{limit:,}?** 
-Just tell me how much you need right now - from ₹50,000 to ₹{limit:,}!
+🎯 **Ready to claim your Rs.{limit:,}?** 
+Just tell me how much you need right now - from Rs.50,000 to Rs.{limit:,}!
 
-Type your amount like: **"I need 2 lakh"** or **"₹300000"** 👇"""
+Type your amount like: **"I need 2 lakh"** or **"Rs.300000"** 👇"""
         
         return pitch
     
@@ -183,10 +183,10 @@ Type your amount like: **"I need 2 lakh"** or **"₹300000"** 👇"""
         
         return f"""📋 **{loan_type} Terms Summary**
 ━━━━━━━━━━━━━━━━━━━━
-💰 Loan Amount: ₹{amount:,}
+💰 Loan Amount: Rs.{amount:,}
 ⏱️ Tenure: {tenure} months  
 📊 Interest Rate: {rate}% p.a.
-💳 Monthly EMI: ₹{emi:,.2f}
+💳 Monthly EMI: Rs.{emi:,.2f}
 🎯 Loan Type: {loan_type}{special_msg}
 ━━━━━━━━━━━━━━━━━━━━
 
@@ -235,9 +235,9 @@ We need to **complete your KYC verification**:
 3. ✅ Address Proof (Latest utility bill)
 
 🚀 **Digital KYC Options:**
-• 📱 Upload via app (5 minutes)
-• 🏦 Visit nearest branch  
-• 📞 Video KYC call
+- 📱 Upload via app (5 minutes)
+- 🏦 Visit nearest branch  
+- 📞 Video KYC call
 
 ⚠️ **Note:** Cannot proceed with loan without KYC completion."""
         
@@ -247,16 +247,16 @@ We need to **complete your KYC verification**:
 ━━━━━━━━━━━━━━━━━━━━
 👤 Name: {name}
 🏙️ City: {customer_data['city']}
-📊 Salary: ₹{customer_data['salary']:,}
+📊 Salary: Rs.{customer_data['salary']:,}
 ━━━━━━━━━━━━━━━━━━━━
 
 As a **new customer**, we need to verify your identity:
 
 📄 **Required Documents:**
-• Aadhaar Card (Identity proof)
-• PAN Card (Tax ID)
-• Latest salary slip
-• Bank statement (last 3 months)
+- Aadhaar Card (Identity proof)
+- PAN Card (Tax ID)
+- Latest salary slip
+- Bank statement (last 3 months)
 
 🚀 **Good news**: Digital KYC takes just **5 minutes**!
 Upload documents now or visit nearest branch.
@@ -318,10 +318,10 @@ class UnderwritingAgent:
         elif amount <= limit:
             result["decision"] = f"""🎉 **INSTANT APPROVAL!**
 ━━━━━━━━━━━━━━━━━━━━
-💰 Approved Amount: ₹{amount:,}
+💰 Approved Amount: Rs.{amount:,}
 📊 Credit Score: {score}/900
-✅ Within Pre-Approved Limit: ₹{limit:,}
-💳 Monthly EMI: ₹{emi:,.2f}
+✅ Within Pre-Approved Limit: Rs.{limit:,}
+💳 Monthly EMI: Rs.{emi:,.2f}
 🤖 AI Confidence: {confidence}%
 ━━━━━━━━━━━━━━━━━━━━
 🎊 Congratulations! Your loan is approved instantly!"""
@@ -330,16 +330,16 @@ class UnderwritingAgent:
         elif amount <= 2 * limit and emi_to_salary_ratio <= 50:
             result["decision"] = f"""📝 **CONDITIONAL APPROVAL**
 ━━━━━━━━━━━━━━━━━━━━
-💰 Requested: ₹{amount:,}
-📊 Pre-Approved Limit: ₹{limit:,}
-💳 Monthly EMI: ₹{emi:,.2f}
+💰 Requested: Rs.{amount:,}
+📊 Pre-Approved Limit: Rs.{limit:,}
+💳 Monthly EMI: Rs.{emi:,.2f}
 💼 EMI/Salary Ratio: {emi_to_salary_ratio:.1f}%
 ━━━━━━━━━━━━━━━━━━━━
 ✅ Your application is conditionally approved!
 
 📄 **Please upload:**
-• Latest 3 months salary slips
-• Last 6 months bank statement
+- Latest 3 months salary slips
+- Last 6 months bank statement
 
 Upload these and get instant approval!"""
             result["status"] = "Conditional"
@@ -347,12 +347,12 @@ Upload these and get instant approval!"""
         else:
             result["decision"] = f"""❌ **Application Declined**
 ━━━━━━━━━━━━━━━━━━━━
-Requested: ₹{amount:,}
-Pre-Approved Limit: ₹{limit:,}
-Maximum Eligible: ₹{2*limit:,}
+Requested: Rs.{amount:,}
+Pre-Approved Limit: Rs.{limit:,}
+Maximum Eligible: Rs.{2*limit:,}
 ━━━━━━━━━━━━━━━━━━━━
 The requested amount exceeds our lending criteria.
-Consider applying for ₹{limit:,} for instant approval."""
+Consider applying for Rs.{limit:,} for instant approval."""
             result["status"] = "Rejected"
         
         return result
@@ -427,10 +427,10 @@ class SanctionLetterGenerator:
         y_pos -= 0.5*inch
         c.setFont("Helvetica", 9)
         terms = [
-            "• This sanction is valid for 30 days from the date of issue",
-            "• Final disbursement subject to verification of documents",
-            "• Pre-payment charges: 2% on outstanding principal",
-            "• Please visit the nearest branch to complete formalities",
+            "- This sanction is valid for 30 days from the date of issue",
+            "- Final disbursement subject to verification of documents",
+            "- Pre-payment charges: 2% on outstanding principal",
+            "- Please visit the nearest branch to complete formalities",
         ]
         for term in terms:
             c.drawString(1*inch, y_pos, term)
@@ -461,15 +461,20 @@ class MasterAgent:
         self.underwriting_agent = UnderwritingAgent()
         self.sanction_generator = SanctionLetterGenerator()
         self.conversation_history = []
+        self.full_chat_context = []  # Store complete conversation for AI context
     
     def _get_ai_response(self, prompt, fallback_response):
-        """Get AI response with fallback"""
+        """Get AI response with full conversation context"""
         try:
             if api_key:
-                print("🤖 AI ACTIVE: Using Google Gemini AI for intelligent response...")
+                print("🤖 AI ACTIVE: Using Google Gemini AI with full conversation context...")
+                
+                # Build comprehensive context for AI
+                context_prompt = self._build_full_context_prompt(prompt)
+                
                 model = genai.GenerativeModel('gemini-2.5-flash')
-                response = model.generate_content(prompt)
-                print(f"✅ AI SUCCESS: Generated {len(response.text)} character response")
+                response = model.generate_content(context_prompt)
+                print(f"✅ AI SUCCESS: Generated {len(response.text)} character response with full context")
                 print(f"🎯 AI RESPONSE PREVIEW: {response.text[:100]}...")
                 return response.text
             else:
@@ -479,6 +484,44 @@ class MasterAgent:
             print(f"❌ AI ERROR: {e}")
             print("🔄 SWITCHING TO FALLBACK: Using built-in intelligent responses")
             return fallback_response
+    
+    def _build_full_context_prompt(self, current_prompt):
+        """Build comprehensive AI prompt with full conversation context"""
+        # Get conversation history
+        chat_history = "\n".join([f"User: {msg[0]}\nAssistant: {msg[1]}" for msg in self.full_chat_context[-5:]])  # Last 5 exchanges
+        
+        # Build comprehensive context
+        full_context = f"""
+You are an expert AI loan assistant for Tata Capital NBFC. You have access to the full conversation context.
+
+CUSTOMER PROFILE:
+- Name: {self.context.get('name', 'Unknown')}
+- Stage: {self.conversation_stage}
+- Customer Data: {self.context.get('customer_data', {})}
+- Salary: {self.context.get('salary', 'Not provided')}
+- Loan Amount: {self.context.get('amount', 'Not specified')}
+- Loan Type: {self.context.get('loan_type', 'Not selected')}
+
+RECENT CONVERSATION HISTORY:
+{chat_history}
+
+CURRENT CONTEXT & TASK:
+{current_prompt}
+
+INSTRUCTIONS:
+- Be natural, conversational, and engaging
+- Use the conversation history to provide contextual responses
+- Remember what the customer has said before
+- Guide them towards loan completion naturally
+- Use emojis appropriately
+- Keep responses under 200 words unless specifically asked for details
+- If the message doesn't fit a template, interpret the intent and respond appropriately
+- Be persuasive but not pushy
+- Show you understand their previous messages
+
+Respond naturally as if you're having a real conversation:
+"""
+        return full_context
     
     def _get_response_options(self):
         """Get contextual response options based on current stage"""
@@ -493,19 +536,177 @@ class MasterAgent:
         elif stage in ["sales_pitch", "new_customer_pitch"]:
             return ["✅ Yes, I'm interested!", "💰 Show me interest rates", "📊 Check my eligibility", "📞 I'll call back later"]
         elif stage == "new_customer_info":
-            return ["💼 My salary: ₹30k-50k", "💼 My salary: ₹50k-75k", "💼 My salary: ₹75k-1L", "💼 My salary: ₹1L+"]
+            return ["💼 My salary is 50k", "💼 My salary is 75k", "💼 My salary is 1 lakh", "� Custom amount"]
         elif stage == "loan_requirement":
-            return ["💰 I need ₹2 Lakh", "💰 I need ₹3-5 Lakh", "💰 I need ₹5-10 Lakh", "📝 Different amount"]
+            return ["💰 I need 2 lakh", "💰 I need 3 lakh", "💰 I need 5 lakh", "📝 Different amount"]
         elif stage == "loan_type_selection":
             return ["💼 Personal Loan", "🏢 Business Loan", "💒 Wedding Loan", "🏥 Medical Emergency"]
         elif stage == "terms_confirmation":
-            return ["✅ Accept these terms", "⏱️ Different tenure", "💰 Different amount", "📋 Need more details"]
-        elif stage == "final_approval":
-            return ["📄 Generate sanction letter", "📧 Email me details", "📞 Call me back", "🏦 Visit branch"]
+            return ["✅ Proceed with terms", "⏱️ Change tenure", "💰 Different amount", "❌ Cancel"]
+        elif stage == "underwriting":
+            return ["🔍 Check my credit score", "💰 See loan options", "📊 View eligibility", "⏭️ Process my application"]
+        elif stage == "conditional_docs":
+            return ["📄 Yes, upload documents", "📱 Upload via mobile", "⏰ Upload later", "❓ What documents needed?"]
+        elif stage == "sanction":
+            return ["📄 Generate sanction letter", "📧 Email me the letter", "💰 Check disbursement", "🏦 Branch details"]
+        elif stage == "completed":
+            return ["� Apply for different amount", "📞 Contact support", "⭐ Rate this service", "👋 Thank you"]
         else:
             return ["✅ Yes", "❌ No", "📞 Tell me more", "🔄 Start over"]
     
     def process_message(self, message, history):
+        # Store conversation in full context
+        if len(self.full_chat_context) > 0:
+            # Add user message to context
+            pass  # Will be added after AI response
+        
+        print(f"🧠 PROCESSING MESSAGE: '{message}' in stage '{self.conversation_stage}'")
+        
+        # AI-FIRST APPROACH: Let AI handle everything with context
+        ai_response = self._get_intelligent_ai_response(message)
+        if ai_response:
+            # Add to conversation history
+            self.full_chat_context.append((message, ai_response))
+            return ai_response
+        
+        # Fallback to rule-based if AI fails
+        return self._handle_rule_based_response(message)
+    
+    def _get_intelligent_ai_response(self, message):
+        """Get intelligent AI response that can handle any message dynamically"""
+        try:
+            if not api_key:
+                return None
+                
+            print("🧠 AI INTELLIGENCE: Analyzing message with full conversation context...")
+            
+            # Create comprehensive AI prompt for dynamic conversation handling
+            ai_prompt = f"""
+You are an expert loan assistant AI for Tata Capital NBFC. You have full conversation context and can handle ANY customer message dynamically.
+
+CURRENT SITUATION:
+- Customer Name: {self.context.get('name', 'Not identified yet')}
+- Conversation Stage: {self.conversation_stage}
+- Customer Profile: {self.context.get('customer_data', 'New customer')}
+- Previous Context: {self.context}
+
+CUSTOMER'S MESSAGE: "{message}"
+
+CONVERSATION FLOW STAGES:
+1. greeting -> identification -> kyc_verification -> sales_pitch -> loan_type_selection -> loan_requirement -> underwriting -> sanction
+2. For new customers: greeting -> identification -> new_customer_pitch -> new_customer_info -> loan_type_selection -> etc.
+
+YOUR TASK:
+1. UNDERSTAND the customer's intent from their message
+2. DETERMINE what stage they should be in based on their message
+3. RESPOND appropriately and naturally 
+4. ADVANCE the conversation toward loan completion
+5. UPDATE conversation stage if needed (mention: "STAGE_UPDATE: new_stage_name" at the end)
+
+EXAMPLES OF DYNAMIC HANDLING:
+- If they say "I need money for medical emergency" -> Identify as medical loan need, move to loan_type_selection
+- If they say "What's my credit score?" -> Provide info and guide back to loan process
+- If they say "I'm Rahul" -> Identify customer and proceed with welcome
+- If they say "Not interested" -> Handle objection persuasively
+- If they say random things -> Gently guide back to loan conversation
+
+Be conversational, natural, helpful, and always guide toward loan completion.
+Respond as if you're a helpful human loan expert having a natural conversation.
+"""
+            
+            response = self._get_ai_response(ai_prompt, None)
+            
+            if response:
+                # Extract context updates from AI response
+                self._extract_context_from_ai_response(message, response)
+                
+                # Check if AI suggested stage update
+                if "STAGE_UPDATE:" in response:
+                    parts = response.split("STAGE_UPDATE:")
+                    response = parts[0].strip()
+                    if len(parts) > 1:
+                        new_stage = parts[1].strip()
+                        print(f"🔄 AI STAGE UPDATE: {self.conversation_stage} -> {new_stage}")
+                        self.conversation_stage = new_stage
+            
+            return response
+            
+        except Exception as e:
+            print(f"❌ AI INTELLIGENCE ERROR: {str(e)}")
+            return None
+    
+    def _extract_context_from_ai_response(self, user_message, ai_response):
+        """Extract and update context from AI conversation"""
+        try:
+            if not api_key:
+                return
+                
+            print("🔍 AI CONTEXT EXTRACTION: Updating customer context from conversation...")
+            
+            extraction_prompt = f"""
+Analyze this conversation exchange and extract any customer information to update our records:
+
+Customer said: "{user_message}"
+AI responded: "{ai_response}"
+
+Current context: {self.context}
+
+Extract and return ONLY the new information in this format:
+NAME: [if customer mentioned their name]
+SALARY: [if customer mentioned salary/income]
+CITY: [if customer mentioned location]
+LOAN_AMOUNT: [if customer mentioned how much they need]
+LOAN_TYPE: [if customer mentioned loan type/purpose]
+PHONE: [if customer mentioned phone number]
+
+Only return fields that have NEW information. If nothing new, return "NO_NEW_INFO"
+"""
+            
+            context_update = self._get_ai_response(extraction_prompt, "NO_NEW_INFO")
+            
+            if context_update and context_update != "NO_NEW_INFO":
+                # Parse and update context
+                lines = context_update.split('\n')
+                for line in lines:
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        key = key.strip().lower()
+                        value = value.strip()
+                        
+                        if value and value != '[if customer mentioned their name]':  # Skip template text
+                            if key == 'name' and 'name' not in self.context:
+                                self.context['name'] = value
+                                print(f"📝 CONTEXT UPDATE: Name = {value}")
+                            elif key == 'salary' and 'salary' not in self.context:
+                                try:
+                                    salary_num = int(''.join(filter(str.isdigit, value)))
+                                    self.context['salary'] = salary_num
+                                    print(f"📝 CONTEXT UPDATE: Salary = Rs.{salary_num:,}")
+                                except:
+                                    pass
+                            elif key == 'city' and 'city' not in self.context:
+                                self.context['city'] = value
+                                print(f"📝 CONTEXT UPDATE: City = {value}")
+                            elif key == 'loan_amount' and 'amount' not in self.context:
+                                try:
+                                    amount = int(''.join(filter(str.isdigit, value)))
+                                    self.context['amount'] = amount
+                                    print(f"📝 CONTEXT UPDATE: Loan Amount = Rs.{amount:,}")
+                                except:
+                                    pass
+                            elif key == 'loan_type' and 'loan_type' not in self.context:
+                                self.context['loan_type'] = value
+                                print(f"📝 CONTEXT UPDATE: Loan Type = {value}")
+                                
+        except Exception as e:
+            print(f"❌ CONTEXT EXTRACTION ERROR: {e}")
+            
+        except Exception as e:
+            print(f"❌ AI INTELLIGENCE ERROR: {e}")
+            return None
+    
+    def _handle_rule_based_response(self, message):
+        """Fallback rule-based response handling"""
         msg = message.strip().lower()
         
         # Stage 1: Greeting & Identification
@@ -551,10 +752,10 @@ Ready to explore your exclusive pre-approved offers? 💰"""
                 return """⚠️ **KYC verification is mandatory** for loan processing as per RBI guidelines.
 
 📋 **What you can do:**
-• ✅ Complete KYC now (takes 5 minutes)
-• 📱 Upload documents via mobile app
-• 🏦 Visit nearest branch
-• 📞 Schedule video KYC call
+- ✅ Complete KYC now (takes 5 minutes)
+- 📱 Upload documents via mobile app
+- 🏦 Visit nearest branch
+- 📞 Schedule video KYC call
 
 **Without KYC, I cannot proceed with your loan application.**
 Would you like to complete it now? Just say "Yes"! 👇"""
@@ -565,10 +766,10 @@ Would you like to complete it now? Just say "Yes"! 👇"""
 As per **RBI guidelines**, all loan applications need verified KYC.
 
 📄 **Quick Digital KYC:**
-• Takes only **5 minutes**
-• Upload documents from phone
-• Instant verification
-• No branch visit needed
+- Takes only **5 minutes**
+- Upload documents from phone
+- Instant verification
+- No branch visit needed
 
 **Ready to complete your KYC?** Just say **"Yes"**! 🚀"""
         
@@ -585,7 +786,7 @@ Here's what makes us **India's most trusted NBFC**:
 
 🏆 **4.8/5** customer rating (2 lakh+ reviews)
 ⚡ **98% approval rate** for eligible customers  
-💰 **₹50,000 crores** disbursed last year
+💰 **Rs.50,000 crores** disbursed last year
 🎯 **30 lakh+** happy customers
 
 **Just say "Yes" to check your instant eligibility!** 
@@ -605,10 +806,10 @@ No obligation, no charges - just see what you qualify for! 😊"""
                 return """🤔 Let me ask again - are you interested in exploring **exclusive pre-approved loan offers** tailored just for you?
 
 ✨ **Special benefits waiting:**
-• **Instant approval** for pre-approved amounts
-• **No paperwork hassles** 
-• **Competitive rates** starting 10.99%
-• **Quick disbursement** in 24 hours
+- **Instant approval** for pre-approved amounts
+- **No paperwork hassles** 
+- **Competitive rates** starting 10.99%
+- **Quick disbursement** in 24 hours
 
 Just say **"Yes"** to see your personalized offer! 💰"""
         
@@ -628,7 +829,7 @@ What's your **monthly salary**?
 (This helps me calculate your maximum eligible amount)
 
 **Use quick buttons or type like:**
-• "My salary is 50000" or "50k" or "₹50,000" 💰"""
+- "My salary is 50000" or "50k" or "Rs.50,000" 💰"""
                 else:
                     self.conversation_stage = "loan_requirement"
                     return self._show_loan_type_benefits(loan_type)
@@ -638,13 +839,13 @@ What's your **monthly salary**?
 🎯 **Choose your loan purpose:**
 
 **Click one of the options or type:**
-• **"Personal Loan"** - For any personal needs
-• **"Business Loan"** - For business expansion  
-• **"Home Renovation"** - For home improvements
-• **"Wedding Loan"** - For wedding expenses
-• **"Travel Loan"** - For vacation/travel
-• **"Medical Loan"** - For medical emergencies
-• **"Education Loan"** - For studies/courses
+- **"Personal Loan"** - For any personal needs
+- **"Business Loan"** - For business expansion  
+- **"Home Renovation"** - For home improvements
+- **"Wedding Loan"** - For wedding expenses
+- **"Travel Loan"** - For vacation/travel
+- **"Medical Loan"** - For medical emergencies
+- **"Education Loan"** - For studies/courses
 
 Each loan type has special benefits! 🎉"""
         
@@ -661,13 +862,13 @@ Each loan type has special benefits! 🎉"""
                 return f"""💰 **How much {loan_type} do you need?**
 
 **Click an option or type your amount:**
-• Type amount like: **250000** or **2.5 lakh** or **₹300000**
-• We offer loans from ₹50,000 to ₹50,00,000
+- Type amount like: **250000** or **2.5 lakh** or **Rs.300000**
+- We offer loans from Rs.50,000 to Rs.50,00,000
 
 💡 **Popular {loan_type} amounts:**
-• ₹2,00,000 - Small needs
-• ₹5,00,000 - Medium requirements  
-• ₹10,00,000 - Large projects"""
+- Rs.2,00,000 - Small needs
+- Rs.5,00,000 - Medium requirements  
+- Rs.10,00,000 - Large projects"""
         
         # Stage 5: Terms Acceptance
         elif self.conversation_stage == "terms_confirmation":
@@ -682,9 +883,9 @@ Each loan type has special benefits! 🎉"""
                 return """📋 **Do these loan terms look good to you?**
 
 Please respond with:
-• **"Yes"** - to proceed with verification
-• **"Change tenure"** - to modify repayment period
-• **"Different amount"** - to change loan amount
+- **"Yes"** - to proceed with verification
+- **"Change tenure"** - to modify repayment period
+- **"Different amount"** - to change loan amount
 
 💡 Ready to get **instant approval**? Just say **"Yes"**! ✅"""
         
@@ -696,10 +897,10 @@ Please respond with:
                 return """✅ **Digital KYC Completed Successfully!**
 
 📋 **Documents Verified:**
-• ✅ Aadhaar Card - Verified
-• ✅ PAN Card - Verified  
-• ✅ Salary Slip - Verified
-• ✅ Bank Statement - Verified
+- ✅ Aadhaar Card - Verified
+- ✅ PAN Card - Verified  
+- ✅ Salary Slip - Verified
+- ✅ Bank Statement - Verified
 
 🎉 **Great! Your profile is now complete.**
 
@@ -714,62 +915,22 @@ Visit any Tata Capital branch or complete digital KYC anytime at www.tatacapital
 
 Thank you for your interest! 🙏"""
         
-        # Stage 6: AI-Enhanced Underwriting
+        # Stage 6: AI-Enhanced Integrated Loan Processing
         elif self.conversation_stage == "underwriting":
-            print("📊 AI UNDERWRITING: Assessing loan eligibility with AI insights...")
+            print("� AI LOAN PROCESSING: Starting integrated assessment with credit analysis...")
             
-            # Get assessment result
-            result = self.underwriting_agent.assess_eligibility(
-                self.context["name"],
-                self.context["amount"],
-                self.context.get("tenure", 24),
-                self.context.get("customer_data")
-            )
+            # Perform comprehensive loan processing
+            result = self._perform_integrated_loan_processing()
             
-            # AI-enhanced decision communication
-            ai_prompt = f"""
-            Create a professional loan decision message.
-            Customer: {self.context['name']}
-            Loan amount: ₹{self.context['amount']:,}
-            Decision: {result['status']}
-            Credit score: {result.get('credit_score', 'unknown')}
-            
-            If approved: Create excitement, highlight benefits, mention next steps
-            If rejected: Be empathetic, suggest alternatives, maintain relationship
-            
-            Professional, warm tone. Use emojis. Keep under 100 words.
-            """
-            
-            ai_decision_msg = self._get_ai_response(ai_prompt, "")
-            
-            # Save to CSV - this will now work properly
+            # Save to CSV
             self._save_application(result)
             
             if result["status"] == "Approved":
                 self.conversation_stage = "sanction"
-                base_approval = result["decision"] + "\n\n" + self._offer_sanction_letter()
-                
-                if ai_decision_msg:
-                    return f"🤖 **AI-Enhanced Approval Message:**\n\n{ai_decision_msg}\n\n📋 **Official Decision:**\n{base_approval}"
-                else:
-                    return base_approval
-            elif result["status"] == "Conditional":
-                self.conversation_stage = "conditional_docs"
-                base_conditional = result["decision"] + "\n\n📄 Would you like to upload documents now for instant approval?"
-                
-                if ai_decision_msg:
-                    return f"🤖 **AI-Enhanced Message:**\n\n{ai_decision_msg}\n\n📋 **Details:**\n{base_conditional}"
-                else:
-                    return base_conditional
+                return result["response"] + "\n\n" + self._offer_sanction_letter()
             else:
                 self.conversation_stage = "completed"
-                base_rejection = result["decision"]
-                
-                if ai_decision_msg:
-                    return f"🤖 **AI-Enhanced Response:**\n\n{ai_decision_msg}\n\n📋 **Official Decision:**\n{base_rejection}"
-                else:
-                    return base_rejection
-                return result["decision"] + "\n\n" + self._end_conversation()
+                return result["response"] + "\n\n" + self._end_conversation()
         
         # Stage 7: Conditional Documentation
         elif self.conversation_stage == "conditional_docs":
@@ -796,7 +957,59 @@ All requirements met. Congratulations! 🎊
             else:
                 return "🎉 Your loan is **APPROVED**! Would you like me to generate your official sanction letter now?"
         
-        # Fallback to context-aware responses
+        # AI-powered intent detection and response
+        return self._get_ai_intent_response(message)
+    
+    def _get_ai_intent_response(self, message):
+        """AI-powered intent detection and appropriate response"""
+        try:
+            if api_key:
+                print("🎯 AI INTENT DETECTION: Analyzing customer intent...")
+                
+                intent_prompt = f"""
+Analyze this customer message and determine their intent: "{message}"
+
+Customer context: {self.context}
+Current stage: {self.conversation_stage}
+
+POSSIBLE INTENTS:
+- greeting (wants to start)
+- loan_inquiry (asking about loans)
+- rate_inquiry (asking about interest rates)
+- eligibility_check (wants to know if they qualify)
+- objection (not interested, concerns)
+- personal_info (sharing name, salary, location)
+- loan_amount (specifying how much they need)
+- loan_type (specifying what type of loan)
+- ready_to_proceed (wants to move forward)
+- confusion (doesn't understand something)
+- complaint (unhappy about something)
+- casual_conversation (off-topic chat)
+
+Respond with:
+INTENT: [intent_name]
+CONFIDENCE: [high/medium/low]
+RESPONSE: [Natural, conversational response appropriate for this intent]
+NEXT_ACTION: [What should happen next in the conversation]
+
+Make the response feel like a natural conversation between friends, not a business transaction.
+"""
+                
+                intent_response = self._get_ai_response(intent_prompt, None)
+                if intent_response:
+                    # Extract response from AI intent analysis
+                    if "RESPONSE:" in intent_response:
+                        response_part = intent_response.split("RESPONSE:")[1]
+                        if "NEXT_ACTION:" in response_part:
+                            response_part = response_part.split("NEXT_ACTION:")[0]
+                        return response_part.strip()
+                    else:
+                        return intent_response
+                        
+        except Exception as e:
+            print(f"❌ AI INTENT ERROR: {e}")
+        
+        # Final fallback to smart response
         return self._smart_response(message)
     
     def _greet_customer(self):
@@ -812,21 +1025,37 @@ All requirements met. Congratulations! 🎊
         
         ai_greeting = self._get_ai_response(ai_prompt, "")
         
-        base_greeting = """👋 **Welcome to Tata Capital Digital Loan Assistant!** 👋
+        base_greeting = """🎉 **🎉 WELCOME TO TATA CAPITAL'S AI LOAN PLATFORM! 🎉** 🎉
 
-🏆 **India's Most Trusted NBFC** - Serving 30 lakh+ customers!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 **🏆 INDIA'S #1 MOST TRUSTED NBFC 🏆**
+✨ **Serving 30+ Lakh Happy Customers Since 1998!** ✨
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🚀 **Get Instant Personal Loans with:**
-• ⚡ **30-second approval** process
-• 💰 **Loans up to ₹50 lakhs** 
-• 🏆 **Interest rates from 10.99%**
-• 📱 **100% digital** - No branch visit needed!
-• 🎯 **Same-day disbursement** available!
+🚀 **🚀 GET INSTANT LOANS IN JUST 30 SECONDS! 🚀**
 
-✨ **7 Loan Types Available:** Personal, Business, Wedding, Medical, Travel, Education, Home Renovation
+💰 **💰 AMAZING LOAN FEATURES:**
+- ⚡ **Lightning Fast:** 30-second AI approval process
+- � **Big Amounts:** Loans up to Rs.50 lakhs available
+- 🔥 **Best Rates:** Starting from just 10.99% p.a.
+- 📱 **Zero Hassle:** 100% digital - No branch visit needed!
+- 🎯 **Super Fast:** Same-day money in your bank account!
+- 🏆 **AI Powered:** Smart credit assessment & instant decisions
 
-**🔍 Let's start! May I know your name?** 
-Type it below or choose from our customer database! 👇"""
+🎊 **🎊 7 LOAN TYPES AVAILABLE TODAY:**
+- 💼 **Personal Loans** - For any purpose
+- 🏢 **Business Loans** - Grow your business  
+- 💒 **Wedding Loans** - Make it memorable
+- 🏥 **Medical Loans** - Health emergencies
+- ✈️ **Travel Loans** - Dream vacations
+- 🎓 **Education Loans** - Invest in future
+- 🏠 **Home Renovation** - Beautiful spaces
+
+🔍 **🔍 READY TO GET YOUR INSTANT LOAN?**
+**Let's start with a simple question:**
+
+**❓ What's your name?** 
+💭 Type it below or click to choose from our database! 👇"""
         
         if ai_greeting:
             return f"{ai_greeting}\n\n{base_greeting}"
@@ -860,29 +1089,34 @@ Just type something like: **"My name is John"** or **"I'm Sarah"** 👇"""
                 print(f"🎯 AI ENHANCEMENT: Creating personalized welcome for {existing_name}")
                 ai_prompt = f"""
                 Create a personalized welcome message for returning customer {existing_name} from {customer_data['city']}.
-                Customer details: Credit score {customer_data['credit_score']}, Pre-approved limit ₹{customer_data["pre_approved_limit"]:,}, KYC: {customer_data['kyc']}.
+                Customer details: Credit score {customer_data['credit_score']}, Pre-approved limit Rs.{customer_data["pre_approved_limit"]:,}, KYC: {customer_data['kyc']}.
                 Make it warm, professional, and highlight their VIP status. Include relevant emojis.
                 Keep under 100 words. Focus on exclusive benefits and next steps.
                 """
                 
                 ai_welcome = self._get_ai_response(ai_prompt, "")
                 
-                base_response = f"""🎉 **Welcome back, {existing_name}!** 🎉
+                base_response = f"""� **🎊 WELCOME BACK VIP CUSTOMER {existing_name.upper()}! 🎊** �
 
-🔍 **CUSTOMER PROFILE LOADED**
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👤 **Name:** {existing_name}
-📍 **City:** {customer_data['city']}
-📞 **Phone:** {customer_data['phone']}
-🆔 **KYC Status:** {kyc_status}
-💳 **Credit Score:** {customer_data['credit_score']}/850 ({credit_rating})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 **🏆 PREMIUM CUSTOMER PROFILE ACTIVATED 🏆**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✨ **EXCLUSIVE VIP BENEFITS:**
-• 🏆 **Pre-approved limit**: ₹{customer_data["pre_approved_limit"]:,}
-• ⚡ **Instant approval** - Priority processing!
-• 💰 **Special rate**: From **10.99% p.a.**
-• 🎯 **Zero documentation** for pre-approved amounts!
+� **📋 YOUR VIP ACCOUNT DETAILS:**
+- �👤 **Customer Name:** {existing_name} 🌟
+- 📍 **Location:** {customer_data['city']} 📍
+- 📞 **Registered Phone:** {customer_data['phone']} 📱
+- 🆔 **KYC Verification:** {kyc_status} {"🚀" if customer_data['kyc'] else "⏳"}
+- 💳 **Credit Score:** {customer_data['credit_score']}/900 ({credit_rating}) {"🌟" if customer_data['credit_score'] >= 750 else "📈"}
+- 💰 **Account Type:** Premium Banking Partner 🏆
+
+🎯 **🎯 EXCLUSIVE VIP BENEFITS FOR YOU:**
+- 🏆 **Instant Pre-Approved Limit:** Rs.{customer_data["pre_approved_limit"]:,}
+- ⚡ **Lightning Approval:** Get money in 2 hours max!
+- � **VIP Interest Rate:** Starting from just **10.99% p.a.**
+- 🚀 **Zero Paperwork:** For amounts up to your limit!
+- 🎁 **Special Privileges:** No processing fee for you!
+- 📞 **Priority Support:** Dedicated relationship manager
 
 {ai_welcome if ai_welcome else ""}
 
@@ -903,20 +1137,34 @@ We need to complete your KYC before loan processing.
             self.context["customer_data"] = None
             self.context["is_existing"] = False
             self.conversation_stage = "new_customer_pitch"
-            return f"""🎉 **Hello {name.title()}! Welcome to Tata Capital!**
+            return f"""🎉 **🎉 HELLO {name.title().upper()}! WELCOME TO TATA CAPITAL FAMILY! 🎉** 🎉
 
-🚀 **GREAT NEWS!** Even as a new customer, you can get:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌟 **🌟 CONGRATULATIONS! YOU'RE IN THE RIGHT PLACE! 🌟**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✨ **INSTANT LOAN APPROVAL** up to ₹50 lakhs!
-• 💰 **Best rates**: Starting from just **10.99% p.a.**
-• ⚡ **Quick approval**: Decision in 30 seconds  
-• 📱 **Digital process**: Apply from home
-• 🏆 **No hidden charges**: Complete transparency
+🚀 **🚀 AMAZING NEWS FOR NEW CUSTOMERS LIKE YOU!**
 
-**💡 Ready to discover how much you can get approved for?**
+🔥 **🔥 SPECIAL NEW CUSTOMER OFFERS:**
+- 💰 **Instant Loans:** Up to Rs.50 Lakhs available TODAY!
+- 🏆 **Best Market Rates:** Starting from just **10.99% p.a.**
+- ⚡ **Lightning Speed:** Approval in just 30 seconds!
+- 📱 **Zero Hassle:** Complete everything from your phone!
+- � **No Hidden Fees:** 100% transparent pricing!
+- 🌟 **Same Day Money:** Get cash in your account today!
 
-Thousands of customers get **instant approval** daily! 
-Want to check your eligibility right now? 🎯"""
+🎊 **🎊 WHY 30+ LAKH CUSTOMERS CHOSE US:**
+- 🏆 **India's Most Trusted NBFC** since 1998
+- 💎 **Premium Service** - Dedicated support team
+- 🚀 **AI-Powered Processing** - Fastest approvals in market
+- 💰 **Flexible EMIs** - Choose your comfort zone
+- 📈 **Build Credit Score** - We help improve your rating!
+
+💡 **💡 EXCLUSIVE QUESTION FOR YOU:**
+**❓ How much money do you need for your dreams?** 
+
+🔥 **Thousands get INSTANT APPROVAL daily! Your turn next!** 
+**Ready to check what you qualify for RIGHT NOW?** 🎯💰"""
     
     def _show_loan_pitch(self):
         self.conversation_stage = "loan_type_selection"
@@ -928,7 +1176,7 @@ Want to check your eligibility right now? 🎯"""
         
         ai_prompt = f"""
         Create a compelling, personalized loan sales pitch for {name}.
-        Customer profile: Credit score {customer_data['credit_score']}, Pre-approved ₹{customer_data["pre_approved_limit"]:,}, City: {customer_data['city']}.
+        Customer profile: Credit score {customer_data['credit_score']}, Pre-approved Rs.{customer_data["pre_approved_limit"]:,}, City: {customer_data['city']}.
         
         Make it persuasive, professional, and exciting. Highlight:
         - Instant approval benefits
@@ -965,18 +1213,18 @@ Let me help you find the **PERFECT loan** for your needs!
         return f"""I totally get it, {name}! 😊 
 
 But here's something **AMAZING** - checking your eligibility is:
-• ✅ **100% FREE** - No charges at all
-• ⚡ **Takes 30 seconds** - Super quick
-• 🔒 **Completely secure** - No spam calls
-• 📱 **No paperwork** needed right now
+- ✅ **100% FREE** - No charges at all
+- ⚡ **Takes 30 seconds** - Super quick
+- 🔒 **Completely secure** - No spam calls
+- 📱 **No paperwork** needed right now
 
-**Think of it this way:** Wouldn't you want to know if you can get ₹10 lakhs at just 10.99% interest? 
+**Think of it this way:** Wouldn't you want to know if you can get Rs.10 lakhs at just 10.99% interest? 
 
 Even if you don't need money today, **life is unpredictable**:
-• Medical emergencies 🏥
-• Home repairs 🏠  
-• Wedding expenses 💒
-• Business opportunities 💼
+- Medical emergencies 🏥
+- Home repairs 🏠  
+- Wedding expenses 💒
+- Business opportunities 💼
 
 **Just say "Check" to see your FREE eligibility!** 
 What have you got to lose? 🤔"""
@@ -1039,11 +1287,11 @@ Even if you don't need money right now, wouldn't you like to know your **FREE pr
         
         return """⏱️ **Choose your preferred tenure:**
 
-• **12 months** - Higher EMI, less interest
-• **24 months** - Balanced option ⭐ 
-• **36 months** - Lower EMI
-• **48 months** - Very low EMI
-• **60 months** - Lowest EMI
+- **12 months** - Higher EMI, less interest
+- **24 months** - Balanced option ⭐ 
+- **36 months** - Lower EMI
+- **48 months** - Very low EMI
+- **60 months** - Lowest EMI
 
         Just tell me: "24 months" or "3 years" etc."""
     
@@ -1060,7 +1308,7 @@ Even if you don't need money right now, wouldn't you like to know your **FREE pr
                 # AI-enhanced salary confirmation
                 print("💰 AI SALARY ANALYSIS: Creating personalized eligibility preview...")
                 ai_prompt = f"""
-                Customer {name} just shared salary of ₹{salary:,}/month.
+                Customer {name} just shared salary of Rs.{salary:,}/month.
                 Create an encouraging message that:
                 - Congratulates them on good salary
                 - Hints at loan eligibility (3-5x salary typically)
@@ -1072,16 +1320,16 @@ Even if you don't need money right now, wouldn't you like to know your **FREE pr
                 
                 ai_salary_response = self._get_ai_response(ai_prompt, "")
                 
-                base_response = f"""💰 **Great! Monthly salary: ₹{salary:,}**
+                base_response = f"""💰 **Great! Monthly salary: Rs.{salary:,}**
 
 📋 **Step 2: Location** 
 ━━━━━━━━━━━━━━━━━━━━
 Which city are you based in?
 
 💡 **Examples:**
-• "I'm in Mumbai"
-• "Bangalore" 
-• "Delhi NCR"
+- "I'm in Mumbai"
+- "Bangalore" 
+- "Delhi NCR"
 
 **Different cities have different offers!** 🏙️"""
                 
@@ -1093,9 +1341,9 @@ Which city are you based in?
                 return """💰 **Please share your monthly salary:**
 
 💡 **Examples:**
-• "50000" or "50k"
-• "My salary is 75000"
-• "I earn ₹60,000 per month"
+- "50000" or "50k"
+- "My salary is 75000"
+- "I earn Rs.60,000 per month"
 
 **This helps me calculate your maximum loan eligibility!** 📊"""
         
@@ -1111,16 +1359,16 @@ Which city are you based in?
 What's your age? (This affects interest rates)
 
 💡 **Examples:**
-• "I'm 28 years old"
-• "32"
-• "Age 35"
+- "I'm 28 years old"
+- "32"
+- "Age 35"
 
 **Younger professionals often get better rates!** ⭐"""
             else:
                 return """🏙️ **Which city are you in?**
 
 Just type your city name:
-• Mumbai, Delhi, Bangalore, Pune, Chennai, Hyderabad, etc.
+- Mumbai, Delhi, Bangalore, Pune, Chennai, Hyderabad, etc.
 
 **City matters for loan processing speed!** 🚀"""
         
@@ -1137,9 +1385,9 @@ Just type your city name:
                 return """👤 **What's your age?**
 
 💡 **Examples:**
-• "28" 
-• "I'm 32 years old"
-• "Age: 35"
+- "28" 
+- "I'm 32 years old"
+- "Age: 35"
 
 **Almost done! This is the last question.** ✅"""
     
@@ -1263,7 +1511,7 @@ Just type your city name:
 
 🚀 **YOUR PERSONALIZED LOAN OFFER:**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-💰 **Eligible Amount**: Up to **₹{limit:,}**
+💰 **Eligible Amount**: Up to **Rs.{limit:,}**
 📊 **Estimated Credit Score**: {score}/900
 ⭐ **Interest Rate**: Starting from **10.99% p.a.**
 💳 **Flexible Tenure**: 12 to 60 months
@@ -1276,12 +1524,12 @@ Just type your city name:
         elif score >= 700:
             offer += "✅ **EXCELLENT PROFILE** - High approval chances!\n\n"
         
-        offer += f"""💡 **Based on your ₹{salary:,} salary, you can easily afford:**
-• ₹{int(limit/2):,} loan = ₹{self._calculate_emi(int(limit/2), 24):,}/month EMI
-• ₹{int(limit*0.75):,} loan = ₹{self._calculate_emi(int(limit*0.75), 36):,}/month EMI
+        offer += f"""💡 **Based on your Rs.{salary:,} salary, you can easily afford:**
+- Rs.{int(limit/2):,} loan = Rs.{self._calculate_emi(int(limit/2), 24):,}/month EMI
+- Rs.{int(limit*0.75):,} loan = Rs.{self._calculate_emi(int(limit*0.75), 36):,}/month EMI
 
 🎯 **Ready to apply? How much do you need today?**
-Just tell me like: **"I need 3 lakh"** or **"₹500000"** 💰"""
+Just tell me like: **"I need 3 lakh"** or **"Rs.500000"** 💰"""
         
         return offer
     
@@ -1339,77 +1587,77 @@ Each loan type has **special benefits and rates**! 🎉"""
             "Personal Loan": """🎯 **Personal Loan - Maximum Flexibility!**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✨ **Special Benefits:**
-• ✅ **No end-use restrictions** - Use for anything!
-• ⚡ **Instant approval** for pre-approved customers
-• 💰 **Up to ₹50 lakhs** available
-• 🏆 **Lowest rates** starting 10.99%
-• 📱 **100% digital process** - No branch visit
+- ✅ **No end-use restrictions** - Use for anything!
+- ⚡ **Instant approval** for pre-approved customers
+- 💰 **Up to Rs.50 lakhs** available
+- 🏆 **Lowest rates** starting 10.99%
+- 📱 **100% digital process** - No branch visit
 
 💡 **Perfect for:** Medical bills, debt consolidation, shopping, emergencies""",
 
             "Business Loan": """💼 **Business Loan - Grow Your Business!**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✨ **Special Benefits:**
-• 🚀 **Quick capital** for business growth
-• 💰 **Up to ₹1 crore** funding available  
-• 📊 **Flexible repayment** up to 5 years
-• 💳 **Competitive rates** from 11.5%
-• 📈 **No collateral** required up to ₹50L
+- 🚀 **Quick capital** for business growth
+- 💰 **Up to Rs.1 crore** funding available  
+- 📊 **Flexible repayment** up to 5 years
+- 💳 **Competitive rates** from 11.5%
+- 📈 **No collateral** required up to Rs.50L
 
 💡 **Perfect for:** Inventory, expansion, equipment, working capital""",
 
             "Wedding Loan": """💒 **Wedding Loan - Make Your Day Special!**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✨ **Special Benefits:**
-• 🎉 **Wedding season discount** - Extra 0.5% off
-• 💰 **Up to ₹25 lakhs** for your big day
-• ⏱️ **Extended tenure** up to 5 years
-• 🎁 **Free wedding planning** consultation
-• 📱 **Quick approval** in 24 hours
+- 🎉 **Wedding season discount** - Extra 0.5% off
+- 💰 **Up to Rs.25 lakhs** for your big day
+- ⏱️ **Extended tenure** up to 5 years
+- 🎁 **Free wedding planning** consultation
+- 📱 **Quick approval** in 24 hours
 
 💡 **Perfect for:** Venue, catering, jewelry, shopping, honeymoon""",
 
             "Home Renovation Loan": """🏠 **Home Renovation - Transform Your Space!**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✨ **Special Benefits:**
-• 🔨 **Renovation specialist** team support
-• 💰 **Up to ₹30 lakhs** for home improvement
-• 🏆 **Special rates** from 10.5% for home loans
-• 📋 **Minimal documentation** required
-• 🎯 **Vendor tie-ups** for discounts
+- 🔨 **Renovation specialist** team support
+- 💰 **Up to Rs.30 lakhs** for home improvement
+- 🏆 **Special rates** from 10.5% for home loans
+- 📋 **Minimal documentation** required
+- 🎯 **Vendor tie-ups** for discounts
 
 💡 **Perfect for:** Kitchen, bathroom, flooring, painting, furnishing""",
 
             "Travel Loan": """✈️ **Travel Loan - Explore the World!**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✨ **Special Benefits:**
-• 🌍 **Travel partner discounts** up to 15%
-• 💰 **Up to ₹15 lakhs** for dream vacations
-• ⚡ **48-hour approval** for urgent travel
-• 💳 **Zero forex markup** on international cards
-• 📱 **Travel insurance** included
+- 🌍 **Travel partner discounts** up to 15%
+- 💰 **Up to Rs.15 lakhs** for dream vacations
+- ⚡ **48-hour approval** for urgent travel
+- 💳 **Zero forex markup** on international cards
+- 📱 **Travel insurance** included
 
 💡 **Perfect for:** International trips, family vacations, adventure tours""",
 
             "Medical Loan": """🏥 **Medical Loan - Health First Priority!**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✨ **Special Benefits:**
-• 🚨 **Emergency approval** in 2 hours
-• 💰 **Up to ₹20 lakhs** for medical needs
-• 🏆 **Lowest rates** from 9.99% (special rate)
-• 🏥 **Hospital tie-ups** for direct payment
-• 💊 **Medical insurance** guidance
+- 🚨 **Emergency approval** in 2 hours
+- 💰 **Up to Rs.20 lakhs** for medical needs
+- 🏆 **Lowest rates** from 9.99% (special rate)
+- 🏥 **Hospital tie-ups** for direct payment
+- 💊 **Medical insurance** guidance
 
 💡 **Perfect for:** Surgery, treatment, medicines, health checkups""",
 
             "Education Loan": """🎓 **Education Loan - Invest in Your Future!**
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✨ **Special Benefits:**
-• 📚 **Student-friendly** EMI options
-• 💰 **Up to ₹1 crore** for higher studies
-• 🎯 **Moratorium period** during studies
-• 🌍 **International education** support
-• 📜 **Tax benefits** under Section 80E
+- 📚 **Student-friendly** EMI options
+- 💰 **Up to Rs.1 crore** for higher studies
+- 🎯 **Moratorium period** during studies
+- 🌍 **International education** support
+- 📜 **Tax benefits** under Section 80E
 
 💡 **Perfect for:** College fees, MBA, foreign studies, skill courses"""
         }
@@ -1484,7 +1732,16 @@ Each loan type has **special benefits and rates**! 🎉"""
         return kyc_result + credit_msg + "\n⏳ Running final eligibility assessment..."
     
     def _offer_sanction_letter(self):
-        return "🎉 Would you like me to generate your official sanction letter now?"
+        return """📄 **📄 SANCTION LETTER READY FOR DOWNLOAD! 📄**
+
+🎉 **🎉 CONGRATULATIONS!** Your official loan sanction letter is ready!
+
+🚀 **🚀 INSTANT DOWNLOAD OPTIONS:**
+- 📱 **Option 1:** Click "Generate sanction letter" below
+- 💻 **Option 2:** Type "generate PDF" to download now  
+- 📧 **Option 3:** Type "email me" to get it via email
+
+**⚡ Your digital sanction letter will be ready in 3 seconds! ⚡**"""
     
     def _generate_sanction(self):
         self.conversation_stage = "completed"
@@ -1493,28 +1750,376 @@ Each loan type has **special benefits and rates**! 🎉"""
         tenure = self.context.get("tenure", 24)
         rate = 11.5
         
+        # Generate the PDF
         filepath = self.sanction_generator.generate_pdf(
             name, amount, tenure, rate,
             self.context["customer_data"]
         )
         
-        return f"""✅ **Sanction Letter Generated Successfully!**
+        # Create download link
+        import os
+        file_name = os.path.basename(filepath)
+        
+        return f"""🎉 **🎉 SANCTION LETTER GENERATED SUCCESSFULLY! 🎉**
 
-📄 **Download your letter:** {filepath}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📄 **📄 YOUR OFFICIAL LOAN DOCUMENTS ARE READY! 📄**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🎊 **Next Steps:**
-1. Download and review your sanction letter
-2. Visit nearest Tata Capital branch with:
-   • Original ID proofs
-   • Address proof
-   • Bank statements (last 6 months)
-3. Complete signing formalities
-4. Get disbursement within 24 hours!
+💾 **💾 DOWNLOAD INFORMATION:**
+- 📁 **File Name:** {file_name}
+- 📂 **File Location:** {filepath}
+- 📄 **Document Type:** Official PDF Sanction Letter
+- 🔒 **Security:** Password protected with your phone number
 
-Thank you for choosing Tata Capital. Have a great day! 🙏"""
+🎊 **🎊 IMMEDIATE NEXT STEPS:**
+- **✅ Step 1:** **Download the PDF file above** 📥
+- **🏦 Step 2:** **Visit any Tata Capital branch** with these documents:
+  - 🆔 **Original ID proofs** (PAN Card, Aadhaar Card)
+  - 🏠 **Address proof** (Utility bill, Rent agreement)  
+  - 🏦 **Bank statements** (Last 6 months)
+  - 📄 **This sanction letter** (Print or show on mobile)
+
+💰 **💰 MONEY DISBURSAL PROCESS:**
+- ⏰ **Processing Time:** 2-4 hours at branch
+- 💸 **Disbursal Method:** Direct bank transfer (NEFT/RTGS)
+- 📱 **SMS Updates:** You'll get real-time notifications
+- 🎯 **Expected Credit:** Within 24 hours of branch visit
+
+🔥 **🔥 SPECIAL NOTES:**
+- 🚀 **Fast Track:** VIP customer - priority processing
+- 📞 **Support:** 24/7 helpline: 1800-209-8787
+- 🎁 **Bonus:** Zero prepayment charges for first year
+- ⭐ **Rating:** Please rate our service 5 stars!
+
+**🙏 Thank you for choosing Tata Capital! Welcome to our family of satisfied customers! 🙏**
+
+**🎊 Congratulations once again on your loan approval! 🎊**"""
     
     def _end_conversation(self):
         return "\n\nThank you for considering Tata Capital. Feel free to reach out anytime! 🙏"
+    
+    def _perform_integrated_loan_processing(self):
+        """Comprehensive integrated loan processing with credit assessment and personalized offerings"""
+        try:
+            print("🔍 INTEGRATED PROCESSING: Starting comprehensive loan assessment...")
+            
+            # Get customer data
+            name = self.context["name"]
+            requested_amount = self.context["amount"]
+            customer_data = self.context.get("customer_data")
+            
+            if name in customers:
+                data = customers[name]
+            elif customer_data:
+                data = customer_data
+            else:
+                return {
+                    "status": "Error",
+                    "response": "❌ Customer data not available for processing."
+                }
+            
+            # Step 1: Credit Score Assessment
+            credit_score = data["credit_score"]
+            salary = data["salary"]
+            pre_approved_limit = data["pre_approved_limit"]
+            
+            # Step 2: Generate personalized loan offerings
+            offerings = self._generate_personalized_offerings(credit_score, salary, pre_approved_limit)
+            
+            # Step 3: Process the specific request
+            decision_result = self._make_loan_decision(requested_amount, credit_score, salary, pre_approved_limit, name)
+            
+            # Step 4: Create comprehensive response
+            response = self._create_integrated_response(
+                name, credit_score, salary, requested_amount, 
+                pre_approved_limit, offerings, decision_result
+            )
+            
+            return {
+                "status": decision_result["status"],
+                "response": response,
+                "name": name,
+                "amount": requested_amount,
+                "score": credit_score,
+                "limit": pre_approved_limit,
+                "salary": salary,
+                "confidence": decision_result["confidence"]
+            }
+            
+        except Exception as e:
+            print(f"❌ PROCESSING ERROR: {str(e)}")
+            return {
+                "status": "Error",
+                "response": "❌ Unable to process your loan application. Please try again."
+            }
+    
+    def _generate_personalized_offerings(self, credit_score, salary, pre_approved_limit):
+        """Generate personalized loan offerings based on customer profile"""
+        offerings = []
+        
+        # Calculate different loan amounts with their terms
+        amounts = [
+            min(pre_approved_limit, int(salary * 3)),      # Conservative
+            min(pre_approved_limit, int(salary * 4)),      # Standard  
+            pre_approved_limit                             # Maximum
+        ]
+        
+        for amount in amounts:
+            if amount >= 50000:  # Minimum loan amount
+                rate = self._calculate_interest_rate(credit_score, amount)
+                emi_24 = self._calculate_emi(amount, rate, 24)
+                emi_36 = self._calculate_emi(amount, rate, 36)
+                
+                offerings.append({
+                    "amount": amount,
+                    "rate": rate,
+                    "emi_24": emi_24,
+                    "emi_36": emi_36
+                })
+        
+        return offerings
+    
+    def _calculate_interest_rate(self, credit_score, amount):
+        """Calculate personalized interest rate - returns single market rate"""
+        # Current market rate for personal loans in India (November 2024)
+        market_rate = 12.5  # Single market rate instead of range
+        
+        # Minor adjustments based on credit score for personalization
+        if credit_score >= 800:
+            return 11.5  # Premium rate for excellent credit
+        elif credit_score >= 750:
+            return 12.0  # Good rate for very good credit
+        elif credit_score >= 700:
+            return 12.5  # Standard market rate
+        else:
+            return 13.0  # Slightly higher for fair credit
+        
+        # Always return a single, definitive rate
+    
+    def _calculate_emi(self, amount, rate, tenure):
+        """Calculate EMI"""
+        monthly_rate = rate / 100 / 12
+        emi = (amount * monthly_rate * (1 + monthly_rate)**tenure) / ((1 + monthly_rate)**tenure - 1)
+        return emi
+    
+    def _make_loan_decision(self, requested_amount, credit_score, salary, pre_approved_limit, name):
+        """Make intelligent loan decision"""
+        confidence = random.randint(85, 98)
+        
+        # Calculate EMI for requested amount
+        rate = self._calculate_interest_rate(credit_score, requested_amount)
+        emi = self._calculate_emi(requested_amount, rate, 24)
+        emi_to_salary_ratio = (emi / salary) * 100
+        
+        if credit_score < 650:
+            # Approve for a smaller amount instead of rejecting
+            approved_amount = min(pre_approved_limit // 2, int(salary * 2.5))
+            if approved_amount >= 50000:  # Minimum loan amount
+                rate = self._calculate_interest_rate(credit_score, approved_amount)
+                emi = self._calculate_emi(approved_amount, rate, 24)
+                return {
+                    "status": "Approved",
+                    "reason": "reduced_amount_approval",
+                    "confidence": confidence,
+                    "rate": rate,
+                    "emi": emi,
+                    "approved_amount": approved_amount,
+                    "original_request": requested_amount
+                }
+            else:
+                return {
+                    "status": "Rejected",
+                    "reason": "low_credit_score",
+                    "confidence": confidence
+                }
+        elif requested_amount <= pre_approved_limit and emi_to_salary_ratio <= 45:
+            return {
+                "status": "Approved",
+                "reason": "instant_approval",
+                "confidence": confidence,
+                "rate": rate,
+                "emi": emi
+            }
+        else:
+            # Instead of conditional approval, approve for maximum eligible amount
+            approved_amount = min(pre_approved_limit, int(salary * 4))
+            if approved_amount >= 50000:
+                rate = self._calculate_interest_rate(credit_score, approved_amount)
+                emi = self._calculate_emi(approved_amount, rate, 24)
+                return {
+                    "status": "Approved",
+                    "reason": "reduced_amount_approval",
+                    "confidence": confidence,
+                    "rate": rate,
+                    "emi": emi,
+                    "approved_amount": approved_amount,
+                    "original_request": requested_amount
+                }
+            else:
+                return {
+                    "status": "Rejected",
+                    "reason": "exceeds_limit",
+                    "confidence": confidence
+                }
+    
+    def _create_integrated_response(self, name, credit_score, salary, requested_amount, 
+                                  pre_approved_limit, offerings, decision):
+        """Create comprehensive, user-friendly response"""
+        
+        # Header with credit assessment
+        response = f"""🔍 **COMPREHENSIVE LOAN ASSESSMENT COMPLETE**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👋 **Hello {name}!** Here's your personalized loan analysis:
+
+📊 **YOUR CREDIT PROFILE:**
+- **Credit Score:** {credit_score}/900 {'🌟' if credit_score >= 750 else '📈' if credit_score >= 700 else '⚠️'}
+- **Monthly Salary:** Rs.{salary:,}
+- **Pre-Approved Limit:** Rs.{pre_approved_limit:,}
+- **Requested Amount:** Rs.{requested_amount:,}
+
+"""
+        
+        # Personalized loan offerings
+        if len(offerings) > 0:
+            response += "💰 **PERSONALIZED LOAN OFFERINGS FOR YOU:**\n\n"
+            
+            for i, offer in enumerate(offerings, 1):
+                emoji = "⭐" if i == 2 else "💎" if i == 3 else "🎯"
+                label = "RECOMMENDED" if i == 2 else "PREMIUM" if i == 3 else "STARTER"
+                
+                response += f"""{emoji} **{label} PACKAGE:**
+- **Loan Amount:** Rs.{offer['amount']:,}
+- **Interest Rate:** {offer['rate']:.1f}% p.a.
+- **24 Month EMI:** Rs.{offer['emi_24']:,.0f}
+- **36 Month EMI:** Rs.{offer['emi_36']:,.0f}
+
+"""
+        
+        # Decision section
+        response += "🎯 **LOAN DECISION:**\n"
+        
+        if decision["status"] == "Approved":
+            # Generate realistic loan details
+            import datetime
+            loan_ref_no = f"TC/PL/{random.randint(100000, 999999)}/2024"
+            sanction_date = datetime.datetime.now().strftime("%d %B %Y")
+            disbursal_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%d %B %Y")
+            
+            # Check if this is a reduced amount approval
+            if decision.get("reason") == "reduced_amount_approval":
+                approved_amount = decision["approved_amount"]
+                processing_fee = int(approved_amount * 0.02)
+                
+                response += f"""🎉 **🚀 INSTANT LOAN APPROVAL! 🚀** ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 **CONGRATULATIONS {name.upper()}!** 🏆
+**✨ YOUR AI-POWERED LOAN HAS BEEN APPROVED! ✨**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 **📋 OFFICIAL LOAN APPROVAL DETAILS:**
+- 🆔 **Loan Reference:** {loan_ref_no}
+- 💰 **Sanctioned Amount:** Rs.{approved_amount:,} (Instant Approval)
+- 📈 **Interest Rate:** {decision['rate']:.1f}% p.a. (Current Market Rate)
+- 💳 **Monthly EMI:** Rs.{decision['emi']:,.0f}
+- ⏰ **Loan Tenure:** 24 months
+- 🤖 **AI Confidence Score:** {decision['confidence']}%
+- 📅 **Sanction Date:** {sanction_date}
+- 💸 **Expected Disbursal:** {disbursal_date}
+
+💰 **💰 FINANCIAL BREAKDOWN:**
+- 💵 **Principal Amount:** Rs.{approved_amount:,}
+- 🏦 **Processing Fee:** Rs.{processing_fee:,} (2.0%)
+- 📊 **Total Interest:** Rs.{int(decision['emi'] * 24 - approved_amount):,}
+- 💸 **Total Payable:** Rs.{int(decision['emi'] * 24):,}
+
+✅ **✅ WHY YOU'RE INSTANTLY APPROVED:**
+- 🌟 **Smart AI Assessment:** Optimized amount for your profile
+- 💪 **Perfect EMI-to-Income Ratio:** Comfortable repayment
+- 🎯 **Digital Document Verification:** All checks completed
+- ✨ **AI Risk Assessment:** Low Risk Profile
+- 🚀 **Fast-Track Processing:** Premium eligibility
+
+💡 **💡 SMART APPROVAL LOGIC:**
+- 📋 **Requested:** Rs.{requested_amount:,}
+- ✅ **Approved:** Rs.{approved_amount:,} (Guaranteed instant disbursal)
+- 📈 **Future Upgrade:** Apply for higher amounts after 6 months
+
+🎊 **🎊 NEXT STEPS - YOUR MONEY IS READY! 🎊**
+- 📄 **Step 1:** Download your digital sanction letter (PDF)
+- 🎯 **Step 2:** Digital acceptance - No branch visit needed!
+- 💰 **Step 3:** Money in your account within 2 hours!
+
+**🔥 SPECIAL: Instant digital processing - Your documents are pre-verified! 🔥**"""
+                
+            else:
+                # Regular approval for requested amount
+                processing_fee = int(requested_amount * 0.02)
+                
+                response += f"""🎉 **🚀 INSTANT LOAN APPROVAL! 🚀** ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 **CONGRATULATIONS {name.upper()}!** 🏆
+**✨ YOUR AI-POWERED LOAN HAS BEEN APPROVED! ✨**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 **📋 OFFICIAL LOAN APPROVAL DETAILS:**
+- 🆔 **Loan Reference:** {loan_ref_no}
+- 💰 **Sanctioned Amount:** Rs.{requested_amount:,}
+- 📈 **Interest Rate:** {decision['rate']:.1f}% p.a. (Current Market Rate)
+- 💳 **Monthly EMI:** Rs.{decision['emi']:,.0f}
+- ⏰ **Loan Tenure:** 24 months
+- 🤖 **AI Confidence Score:** {decision['confidence']}%
+- 📅 **Sanction Date:** {sanction_date}
+- 💸 **Expected Disbursal:** {disbursal_date}
+
+💰 **💰 FINANCIAL BREAKDOWN:**
+- 💵 **Principal Amount:** Rs.{requested_amount:,}
+- 🏦 **Processing Fee:** Rs.{processing_fee:,} (2.0%)
+- 📊 **Total Interest:** Rs.{int(decision['emi'] * 24 - requested_amount):,}
+- 💸 **Total Payable:** Rs.{int(decision['emi'] * 24):,}
+
+✅ **✅ WHY YOU'RE INSTANTLY APPROVED:**
+- 🌟 **Excellent Credit Score:** {credit_score}/900
+- 💪 **Strong Repayment Capacity:** EMI only {(decision['emi']/salary*100):.1f}% of salary
+- 🎯 **Digital Document Verification:** All checks completed automatically
+- ✨ **AI Risk Assessment:** Low Risk Profile
+- 🚀 **Fast-Track Eligibility:** Premium Customer
+
+🎊 **🎊 NEXT STEPS - YOUR MONEY IS READY! 🎊**
+- 📄 **Step 1:** Download your digital sanction letter (PDF)
+- � **Step 2:** Digital acceptance - No branch visit needed!
+- 💰 **Step 3:** Money in your account within 2 hours!
+
+**🔥 SPECIAL: All documents pre-verified through AI - Instant disbursal! 🔥**"""
+
+        else:  # Rejected - provide alternative amount
+            max_eligible = min(pre_approved_limit, int(salary * 4))
+            response += f"""LOAN ASSESSMENT COMPLETE - ALTERNATIVE APPROVAL!
+
+Hello {name.upper()}, we have great news for you!
+
+CURRENT ASSESSMENT:
+- Amount Requested: Rs.{requested_amount:,}
+- Alternative Approved Amount: Rs.{max_eligible:,}
+- Your Credit Score: {credit_score}/900
+- Monthly Salary: Rs.{salary:,}
+- Interest Rate: 12.5% p.a. (current market rate)
+
+INSTANT APPROVAL AVAILABLE:
+We can instantly approve Rs.{max_eligible:,} for you today with the following benefits:
+- No document uploads required
+- Instant digital approval 
+- Money in your account within 24 hours
+- Current market rate of 12.5% p.a.
+
+Would you like to proceed with Rs.{max_eligible:,} instant approval?"""
+            
+        response += "\n\nReady to proceed? Let me know your decision!"
+        
+        return response
     
     def _save_application(self, result):
         """Save application to CSV with proper error handling"""
@@ -1557,47 +2162,99 @@ Thank you for choosing Tata Capital. Have a great day! 🙏"""
             df = pd.concat([df, new_row], ignore_index=True)
             df.to_csv(DATA_FILE, index=False)
             
-            print(f"✅ Application saved: {customer_name} - {result['status']} - ₹{amount:,}")
+            print(f"✅ Application saved: {customer_name} - {result['status']} - Rs.{amount:,}")
             
         except Exception as e:
             print(f"❌ Error saving application: {str(e)}")
             # Still continue the conversation even if saving fails
     
     def _smart_response(self, message):
-        """Enhanced AI-powered smart responses with context awareness"""
+        """AI-FIRST conversational response with full context awareness"""
+        print("🧠 SMART AI RESPONSE: Using full conversation context for dynamic response...")
+        
+        # AI-FIRST: Always try AI with full conversational context
+        ai_response = self._get_conversational_ai_response(message)
+        if ai_response:
+            return ai_response
+        
+        # Enhanced fallback with context awareness
+        return self._get_contextual_fallback_response(message)
+    
+    def _get_conversational_ai_response(self, message):
+        """Get natural, conversational AI response with full context"""
+        try:
+            if not api_key:
+                return None
+                
+            print("💬 CONVERSATIONAL AI: Creating natural response with full context...")
+            
+            # Build conversation summary
+            recent_messages = self.full_chat_context[-3:] if self.full_chat_context else []
+            conversation_summary = "\n".join([f"User: {msg[0]}\nAI: {msg[1][:100]}..." for msg in recent_messages])
+            
+            ai_prompt = f"""
+You are an expert conversational AI loan assistant for Tata Capital NBFC. You're having a natural conversation with a potential customer.
+
+FULL CUSTOMER CONTEXT:
+- Name: {self.context.get('name', 'Not provided yet')}
+- Current Stage: {self.conversation_stage}
+- Customer Data: {self.context.get('customer_data', 'New customer')}
+- Salary: {self.context.get('salary', 'Not provided')}
+- Loan Amount Needed: {self.context.get('amount', 'Not specified')}
+- Loan Type Interest: {self.context.get('loan_type', 'Not selected')}
+- Is Existing Customer: {self.context.get('is_existing', 'Unknown')}
+
+RECENT CONVERSATION:
+{conversation_summary}
+
+CUSTOMER'S CURRENT MESSAGE: "{message}"
+
+YOUR RESPONSE SHOULD:
+1. Be completely natural and conversational (like talking to a friend)
+2. Reference previous parts of the conversation when relevant
+3. Show you understand their needs and concerns
+4. Guide them naturally toward loan completion
+5. Be helpful, empathetic, and engaging
+6. Use appropriate emojis and tone
+7. Ask follow-up questions when needed
+8. Handle any topic they bring up intelligently
+
+LOAN PRODUCTS TO OFFER:
+- Personal Loan (10.99% interest)
+- Business Loan (11.5% interest)  
+- Wedding Loan (10.99% + discount)
+- Medical Loan (9.99% emergency rate)
+- Travel Loan, Education Loan, Home Renovation
+
+Be conversational and natural. Don't sound robotic or templated.
+"""
+            
+            response = self._get_ai_response(ai_prompt, None)
+            if response:
+                print("✨ CONVERSATIONAL AI SUCCESS: Generated natural response")
+                return response
+            return None
+            
+        except Exception as e:
+            print(f"❌ CONVERSATIONAL AI ERROR: {e}")
+            return None
+    
+    def _get_contextual_fallback_response(self, message):
+        """Enhanced contextual fallback when AI fails"""
         msg = message.lower()
         
-        # Create AI prompt for intelligent conversation
-        ai_prompt = f"""
-        You are a professional loan assistant for Tata Capital NBFC. 
-        Current conversation stage: {self.conversation_stage}
-        Customer context: {self.context}
-        Customer message: {message}
-        
-        Respond in a helpful, professional manner focusing on loan services.
-        Keep response under 200 words and include relevant emojis.
-        Always guide towards loan application completion.
-        """
-        
-        # Try AI response first, then fallback to rule-based
-        print("🔍 TRYING AI: Attempting to generate smart contextual response...")
-        ai_response = self._get_ai_response(ai_prompt, None)
-        if ai_response:
-            print("🎯 AI RESPONSE USED: Returning AI-generated contextual response")
-            return f"🤖 **AI Assistant:** {ai_response}\n\n💡 *Would you like to proceed with your loan application?*"
-        else:
-            print("📋 RULE-BASED RESPONSE: Using enhanced built-in responses")
+        print("📋 CONTEXTUAL FALLBACK: Using enhanced rule-based response with context")
         
         # Enhanced rule-based responses
         if any(word in msg for word in ["loan", "money", "borrow", "credit", "finance"]):
             return """💰 **Perfect! You're in the right place!** 💰
             
 🏆 **Tata Capital - India's #1 NBFC** offers:
-• ✅ **Pre-approved limits** up to ₹50 lakhs
-• ⚡ **30-second approval** process  
-• 💳 **Flexible EMIs** from 12-60 months
-• 🏆 **Interest rates from 10.99%**
-• 📱 **100% digital** - No branch visits!
+- ✅ **Pre-approved limits** up to Rs.50 lakhs
+- ⚡ **30-second approval** process  
+- 💳 **Flexible EMIs** from 12-60 months
+- 🏆 **Interest rates from 10.99%**
+- 📱 **100% digital** - No branch visits!
 
 🎯 **Ready to check your pre-approved offer?** 
 Just type your name or select an option below!"""
@@ -1622,9 +2279,9 @@ Want to check your personalized rate? Just share your name! 👇"""
             return """💳 **EMI Information:**
             
 Our EMI calculator shows:
-• ₹2 lakh loan = ₹9,500/month (24 months)
-• ₹3 lakh loan = ₹14,200/month (24 months)  
-• ₹5 lakh loan = ₹23,600/month (24 months)
+- Rs.2 lakh loan = Rs.9,500/month (24 months)
+- Rs.3 lakh loan = Rs.14,200/month (24 months)  
+- Rs.5 lakh loan = Rs.23,600/month (24 months)
 
 🎯 **Flexible tenures:** 12 to 60 months
 📱 **Auto-debit facility** available
@@ -1636,15 +2293,15 @@ Share your loan amount for exact EMI calculation!"""
             return """📄 **Required Documents:**
             
 **For Pre-approved customers:**
-• Just your Aadhaar & PAN (already verified!)
-• Bank statement (last 3 months)
-• Salary slips (latest 2)
+- Just your Aadhaar & PAN (already verified!)
+- Bank statement (last 3 months)
+- Salary slips (latest 2)
 
 **For others:**
-• Identity proof (Aadhaar/Passport/Driving License)
-• Address proof  
-• Income proof (salary slips/ITR)
-• Bank statements (6 months)
+- Identity proof (Aadhaar/Passport/Driving License)
+- Address proof  
+- Income proof (salary slips/ITR)
+- Bank statements (6 months)
 
 💡 Pre-approved customers get **instant approval**! Check if you're pre-approved?"""
         
@@ -1653,11 +2310,11 @@ Share your loan amount for exact EMI calculation!"""
             return """🤝 **I'm here to help!**
             
 I can assist you with:
-• ✅ Checking pre-approved loan offers
-• 💰 Calculating EMIs and rates  
-• 📋 Loan application process
-• 📄 Document requirements
-• 🎯 Instant approvals
+- ✅ Checking pre-approved loan offers
+- 💰 Calculating EMIs and rates  
+- 📋 Loan application process
+- 📄 Document requirements
+- 🎯 Instant approvals
 
 **Just tell me:** Are you looking for a personal loan today? I can show you exclusive offers! 🚀"""
         
@@ -1666,10 +2323,10 @@ I can assist you with:
             return """🤔 I want to make sure I help you with the right information!
 
 Are you interested in:
-• 💰 **Personal loan** - for any purpose
-• 📊 **Checking rates** - current interest rates  
-• 🧮 **EMI calculator** - monthly payment details
-• 📋 **Loan application** - step by step process
+- 💰 **Personal loan** - for any purpose
+- 📊 **Checking rates** - current interest rates  
+- 🧮 **EMI calculator** - monthly payment details
+- 📋 **Loan application** - step by step process
 
 Or simply say **"Hello"** to start your loan journey! 👋"""
 
@@ -1707,7 +2364,7 @@ Total Applications: {total}
 📝 Conditional: {conditional} ({conditional/total*100:.1f}%)
 ❌ Rejected: {rejected} ({rejected/total*100:.1f}%)
 
-💰 Avg Loan Amount: ₹{avg_amount:,.0f}
+💰 Avg Loan Amount: Rs.{avg_amount:,.0f}
 📊 Avg Credit Score: {avg_score:.0f}/900
 ━━━━━━━━━━━━━━━━━━━━"""
 
@@ -1776,6 +2433,27 @@ def get_conversation_options():
             gr.Button("💰 Different amount", visible=True),
             gr.Button("❌ Cancel", visible=True)
         ]
+    elif stage == "underwriting":
+        return [
+            gr.Button("🔍 Check my credit score", visible=True),
+            gr.Button("💰 See loan options", visible=True),
+            gr.Button("📊 View eligibility", visible=True),
+            gr.Button("⏭️ Process my application", visible=True)
+        ]
+    elif stage == "conditional_docs":
+        return [
+            gr.Button("📄 Yes, upload documents", visible=True),
+            gr.Button("📱 Upload via mobile", visible=True),
+            gr.Button("⏰ Upload later", visible=True),
+            gr.Button("❓ What documents needed?", visible=True)
+        ]
+    elif stage == "sanction":
+        return [
+            gr.Button("📄 Generate sanction letter", visible=True),
+            gr.Button("📧 Email me the letter", visible=True),
+            gr.Button("💰 Check disbursement", visible=True),
+            gr.Button("🏦 Branch details", visible=True)
+        ]
     else:
         return [
             gr.Button("", visible=False),
@@ -1787,20 +2465,32 @@ def get_conversation_options():
 # Build UI
 with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as demo:
     gr.Markdown("""
-    # 🏦 Tata Capital - AI Loan Assistant
-    ### Complete Agentic AI Solution with Master Agent + Worker Agents
+    # 🚀 Tata Capital - Advanced AI Loan Platform
+    ### 🔥 Get Loans Directly Through Chat - Integrated Credit Assessment & Instant Approvals!
+    #### Complete AI-Powered Solution: Master Agent + 4 Worker Agents with Real-time Processing
     """)
     
     with gr.Tab("💬 Loan Application Chat"):
         gr.Markdown("""
-        ### Start Your Loan Journey Here!
-        This AI assistant will guide you through:
-        1. 🎯 Sales & Negotiation
-        2. ✅ KYC Verification  
-        3. 📊 Credit Assessment
-        4. 📄 Sanction Letter Generation
+        ### 🚀 Start Your Instant Loan Journey Here!
+        **Advanced AI-Powered Loan Processing** - Get loans directly through this chat!
         
-        **Just say "Hello" to begin!**
+        **🔥 NEW FEATURES:**
+        - 🧠 **AI Credit Assessment** - Instant credit score analysis
+        - 💰 **Personalized Loan Offerings** - Custom packages just for you  
+        - ⚡ **Real-time Approval** - Get approved in minutes
+        - 📊 **Smart Eligibility Check** - Know your options instantly
+        - 📄 **Integrated Processing** - Complete loan process in chat
+        
+        **Complete Journey:**
+        1. 🎯 **AI Sales & Negotiation** - Smart loan recommendations
+        2. 🆔 **KYC Verification** - Quick identity verification  
+        3. � **Integrated Credit Assessment** - Real-time credit analysis
+        4. 💰 **Personalized Loan Offerings** - Tailored packages with EMI options
+        5. ⚡ **Instant Approval/Rejection** - AI-powered loan decisions
+        6. 📄 **Digital Sanction Letter** - PDF generation & download
+        
+        **💡 Pro Tip:** Just say "Hello" to begin your loan journey!
         """)
         
         # Main chat interface with quick action buttons
@@ -1832,17 +2522,17 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         
         gr.Markdown("### � Quick Salary")
         with gr.Row():
-            salary_30k_btn = gr.Button("Salary: ₹30k", variant="outline") 
-            salary_50k_btn = gr.Button("Salary: ₹50k", variant="outline")
-            salary_75k_btn = gr.Button("Salary: ₹75k", variant="outline")
-            salary_1l_btn = gr.Button("Salary: ₹1L", variant="outline")
+            salary_30k_btn = gr.Button("Salary: Rs.30k", variant="outline") 
+            salary_50k_btn = gr.Button("Salary: Rs.50k", variant="outline")
+            salary_75k_btn = gr.Button("Salary: Rs.75k", variant="outline")
+            salary_1l_btn = gr.Button("Salary: Rs.1L", variant="outline")
         
         gr.Markdown("### �💸 Quick Amounts")
         with gr.Row():
-            amount_2l_btn = gr.Button("₹2 Lakh", variant="outline")
-            amount_3l_btn = gr.Button("₹3 Lakh", variant="outline") 
-            amount_5l_btn = gr.Button("₹5 Lakh", variant="outline")
-            amount_10l_btn = gr.Button("₹10 Lakh", variant="outline")
+            amount_2l_btn = gr.Button("Rs.2 Lakh", variant="outline")
+            amount_3l_btn = gr.Button("Rs.3 Lakh", variant="outline") 
+            amount_5l_btn = gr.Button("Rs.5 Lakh", variant="outline")
+            amount_10l_btn = gr.Button("Rs.10 Lakh", variant="outline")
         
         gr.Markdown("### ⚡ Quick Responses")
         with gr.Row():
@@ -1853,10 +2543,12 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         
         # Handle all interactions with dynamic button updates
         def respond(message, history):
+            print(f"💬 TEXT INPUT: '{message}' | Stage: {master.conversation_stage}")
             bot_response = master.process_message(message, history)
             
-            # Get current stage response options
+            # Get current stage response options (after processing)
             response_options = master._get_response_options()
+            print(f"📋 UPDATED STAGE: {master.conversation_stage} | OPTIONS: {response_options}")
             
             # Convert to proper message format for Gradio 5.x
             if history is None:
@@ -1866,36 +2558,71 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             history.append({"role": "user", "content": message})
             history.append({"role": "assistant", "content": bot_response})
             
-            # Update dynamic buttons
+            # Update dynamic buttons with proper visibility
             button_updates = []
             for i, option in enumerate(response_options[:4]):  # Limit to 4 buttons
-                button_updates.append(gr.Button(option, visible=True))
+                if option and option.strip():
+                    button_updates.append(gr.Button(option, visible=True))
+                else:
+                    button_updates.append(gr.Button("", visible=False))
+            
+            # Ensure we always return 4 button updates
             while len(button_updates) < 4:
                 button_updates.append(gr.Button("", visible=False))
             
             return history, "", *button_updates
         
-        def button_click(message):
-            """Handle button clicks"""
-            current_history = chatbot.value or []
-            bot_response = master.process_message(message, current_history)
+        def button_click(message, history):
+            """Handle button clicks while preserving chat history"""
+            print(f"🔘 BUTTON CLICKED: '{message}' | Stage: {master.conversation_stage}")
             
-            # Get current stage response options
+            # Use existing history or initialize empty
+            if history is None:
+                history = []
+            
+            # Clean button text (remove emojis for processing)
+            clean_message = message
+            if message.startswith("👋"):
+                clean_message = "Hello"
+            elif message.startswith("🆔"):
+                clean_message = "I'm an existing customer"
+            elif message.startswith("🆕"):
+                clean_message = "I'm new to Tata Capital"
+            elif message.startswith("✅"):
+                clean_message = "Yes, I'm interested!"
+            elif message.startswith("💰"):
+                if "Show me" in message:
+                    clean_message = "Show me rates"
+                elif "need" in message:
+                    clean_message = message.replace("💰 I need ", "I need ").replace(" lakh", "00000")
+            elif message.startswith("📊"):
+                clean_message = "Check eligibility"
+            
+            print(f"🔄 PROCESSING: '{clean_message}' | Current history length: {len(history)}")
+            bot_response = master.process_message(clean_message, history)
+            
+            # Get NEW stage response options (after processing the message)
             response_options = master._get_response_options()
+            print(f"📋 NEW STAGE: {master.conversation_stage} | OPTIONS: {response_options}")
             
-            # Add to history in Gradio 5.x format
-            new_history = current_history.copy()
-            new_history.append({"role": "user", "content": message})
-            new_history.append({"role": "assistant", "content": bot_response})
+            # Add to history in Gradio 5.x format  
+            updated_history = history.copy()
+            updated_history.append({"role": "user", "content": message})
+            updated_history.append({"role": "assistant", "content": bot_response})
             
-            # Update dynamic buttons
+            # Update dynamic buttons with proper text
             button_updates = []
             for i, option in enumerate(response_options[:4]):  # Limit to 4 buttons
-                button_updates.append(gr.Button(option, visible=True))
+                if option and option.strip():  # Only create button if option has content
+                    button_updates.append(gr.Button(option, visible=True))
+                else:
+                    button_updates.append(gr.Button("", visible=False))
+            
+            # Ensure we always return 4 button updates
             while len(button_updates) < 4:
                 button_updates.append(gr.Button("", visible=False))
             
-            return new_history, "", *button_updates
+            return updated_history, "", *button_updates
         
         def reset_conversation():
             reset_master()
@@ -1904,20 +2631,36 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         # Event handlers with dynamic button updates
         msg.submit(respond, [msg, chatbot], [chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
         
-        # Dynamic response buttons
-        option1_btn.click(lambda btn: button_click(btn.value if hasattr(btn, 'value') else "Hello"), 
-                         outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        option2_btn.click(lambda btn: button_click(btn.value if hasattr(btn, 'value') else "I'm an existing customer"), 
-                         outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        option3_btn.click(lambda btn: button_click(btn.value if hasattr(btn, 'value') else "I'm new to Tata Capital"), 
-                         outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        option4_btn.click(lambda btn: button_click(btn.value if hasattr(btn, 'value') else "Tell me about services"), 
-                         outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        # Dynamic response buttons - use a simple approach that gets current button text from master agent
+        def option1_click(history):
+            options = master._get_response_options()
+            btn_text = options[0] if len(options) > 0 and options[0] else "Hello"
+            return button_click(btn_text, history)
+        
+        def option2_click(history):
+            options = master._get_response_options()
+            btn_text = options[1] if len(options) > 1 and options[1] else "I'm an existing customer"  
+            return button_click(btn_text, history)
+        
+        def option3_click(history):
+            options = master._get_response_options()
+            btn_text = options[2] if len(options) > 2 and options[2] else "I'm new to Tata Capital"
+            return button_click(btn_text, history)
+        
+        def option4_click(history):
+            options = master._get_response_options()
+            btn_text = options[3] if len(options) > 3 and options[3] else "Tell me about services"
+            return button_click(btn_text, history)
+        
+        option1_btn.click(option1_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        option2_btn.click(option2_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        option3_btn.click(option3_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        option4_btn.click(option4_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
         
         # Quick action buttons
-        hello_btn.click(lambda: button_click("Hello"), outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        existing_btn.click(lambda: button_click("I'm an existing customer"), outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        new_btn.click(lambda: button_click("I'm a new customer"), outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        hello_btn.click(lambda history: button_click("Hello", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        existing_btn.click(lambda history: button_click("I'm an existing customer", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        new_btn.click(lambda history: button_click("I'm a new customer", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
         
         def reset_with_buttons():
             reset_master()
@@ -1926,28 +2669,28 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         reset_btn.click(reset_with_buttons, outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
         
         # Loan type buttons
-        personal_btn.click(lambda: button_click("Personal Loan"), outputs=[chatbot, msg])
-        business_btn.click(lambda: button_click("Business Loan"), outputs=[chatbot, msg])
-        wedding_btn.click(lambda: button_click("Wedding Loan"), outputs=[chatbot, msg])
-        medical_btn.click(lambda: button_click("Medical Loan"), outputs=[chatbot, msg])
+        personal_btn.click(lambda history: button_click("Personal Loan", history), inputs=[chatbot], outputs=[chatbot, msg])
+        business_btn.click(lambda history: button_click("Business Loan", history), inputs=[chatbot], outputs=[chatbot, msg])
+        wedding_btn.click(lambda history: button_click("Wedding Loan", history), inputs=[chatbot], outputs=[chatbot, msg])
+        medical_btn.click(lambda history: button_click("Medical Loan", history), inputs=[chatbot], outputs=[chatbot, msg])
         
         # Salary buttons
-        salary_30k_btn.click(lambda: button_click("My salary is 30000"), outputs=[chatbot, msg])
-        salary_50k_btn.click(lambda: button_click("My salary is 50000"), outputs=[chatbot, msg])
-        salary_75k_btn.click(lambda: button_click("My salary is 75000"), outputs=[chatbot, msg])
-        salary_1l_btn.click(lambda: button_click("My salary is 100000"), outputs=[chatbot, msg])
+        salary_30k_btn.click(lambda history: button_click("My salary is 30000", history), inputs=[chatbot], outputs=[chatbot, msg])
+        salary_50k_btn.click(lambda history: button_click("My salary is 50000", history), inputs=[chatbot], outputs=[chatbot, msg])
+        salary_75k_btn.click(lambda history: button_click("My salary is 75000", history), inputs=[chatbot], outputs=[chatbot, msg])
+        salary_1l_btn.click(lambda history: button_click("My salary is 100000", history), inputs=[chatbot], outputs=[chatbot, msg])
         
         # Amount buttons
-        amount_2l_btn.click(lambda: button_click("I need 2 lakh"), outputs=[chatbot, msg])
-        amount_3l_btn.click(lambda: button_click("I need 3 lakh"), outputs=[chatbot, msg])
-        amount_5l_btn.click(lambda: button_click("I need 5 lakh"), outputs=[chatbot, msg])
-        amount_10l_btn.click(lambda: button_click("I need 10 lakh"), outputs=[chatbot, msg])
+        amount_2l_btn.click(lambda history: button_click("I need 2 lakh", history), inputs=[chatbot], outputs=[chatbot, msg])
+        amount_3l_btn.click(lambda history: button_click("I need 3 lakh", history), inputs=[chatbot], outputs=[chatbot, msg])
+        amount_5l_btn.click(lambda history: button_click("I need 5 lakh", history), inputs=[chatbot], outputs=[chatbot, msg])
+        amount_10l_btn.click(lambda history: button_click("I need 10 lakh", history), inputs=[chatbot], outputs=[chatbot, msg])
         
         # Response buttons
-        yes_btn.click(lambda: button_click("Yes, I'm interested"), outputs=[chatbot, msg])
-        no_btn.click(lambda: button_click("No, not interested"), outputs=[chatbot, msg])
-        proceed_btn.click(lambda: button_click("Yes, proceed"), outputs=[chatbot, msg])
-        help_btn.click(lambda: button_click("Help me"), outputs=[chatbot, msg])
+        yes_btn.click(lambda history: button_click("Yes, I'm interested", history), inputs=[chatbot], outputs=[chatbot, msg])
+        no_btn.click(lambda history: button_click("No, not interested", history), inputs=[chatbot], outputs=[chatbot, msg])
+        proceed_btn.click(lambda history: button_click("Yes, proceed", history), inputs=[chatbot], outputs=[chatbot, msg])
+        help_btn.click(lambda history: button_click("Help me", history), inputs=[chatbot], outputs=[chatbot, msg])
         
 
     
@@ -2038,7 +2781,7 @@ if __name__ == "__main__":
         # Local development configuration
         launch_kwargs = {
             "server_name": "127.0.0.1",  # Force localhost for local development
-            "server_port": 7861,
+            "server_port": 7863,
             "share": False,  # Disable share for local testing
             "show_error": True,
             "quiet": False
