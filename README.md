@@ -8,7 +8,7 @@ sdk_version: "4.44.0"
 app_file: app.py
 pinned: false
 license: mit
-short_description: Advanced AI-powered loan assistant with agentic architecture for NBFC loan processing
+short_description: AI-powered loan assistant with agentic architecture
 tags:
   - finance
   - loan
