@@ -1,4 +1,4 @@
-# app.py - Hugging Face Spaces Deployment
+# loan_agent_complete.py
 # Enhanced Agentic AI Loan Assistant for NBFC
 # Implements Master Agent + 4 Worker Agents with full workflow
 
@@ -11,17 +11,15 @@ import pandas as pd
 import random
 import os
 import json
+import re
 from datetime import datetime
 import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# Get API key from environment variables (Hugging Face Spaces compatible)
-api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
-
+api_key = os.getenv("GEMINI_API_KEY")
 print("=" * 60)
-print("🤖 TATA CAPITAL AI LOAN ASSISTANT - HUGGING FACE SPACES")
+print("🤖 TATA CAPITAL AI LOAN ASSISTANT - AI STATUS CHECK")
 print("=" * 60)
 if api_key:
     genai.configure(api_key=api_key)
@@ -31,7 +29,6 @@ if api_key:
 else:
     print("ℹ️ FALLBACK MODE: Running without Gemini AI - using built-in intelligent responses")
     print("💡 NOTE: App works perfectly with advanced rule-based AI system")
-    print("🤗 For Hugging Face: Add GOOGLE_API_KEY to your Space's environment variables")
 print("=" * 60)
 
 # ------------------------------
@@ -331,8 +328,7 @@ class UnderwritingAgent:
 🎊 Congratulations! Your loan is approved instantly!"""
             result["status"] = "Approved"
         
-        elif amount <= 2 * limit:
-            # Conditional approval path requires salary slip if EMI ratio > 50%
+        elif amount <= 2 * limit and emi_to_salary_ratio <= 50:
             result["decision"] = f"""📝 **CONDITIONAL APPROVAL**
 ━━━━━━━━━━━━━━━━━━━━
 💰 Requested: Rs.{amount:,}
@@ -343,12 +339,10 @@ class UnderwritingAgent:
 ✅ Your application is conditionally approved!
 
 📄 **Please upload:**
-- Latest salary slip (last month)
-- Bank statement (last 3 months)
+- Latest 3 months salary slips
+- Last 6 months bank statement
 
-{"✅ Documents optional as EMI is within 50% of salary" if emi_to_salary_ratio <= 50 else "⚠️ Required to verify affordability as EMI exceeds 50% of salary"}
-
-After upload, your approval will be finalized instantly!"""
+Upload these and get instant approval!"""
             result["status"] = "Conditional"
         
         else:
@@ -469,6 +463,14 @@ class MasterAgent:
         self.sanction_generator = SanctionLetterGenerator()
         self.conversation_history = []
         self.full_chat_context = []  # Store complete conversation for AI context
+        self.entry_scenario = random.choice([
+            "clicking our Instagram festive personal loan ad",
+            "opening the 'Wedding Bliss' email campaign",
+            "tapping the Tata Capital app push notification about instant top-up loans",
+            "exploring the emergency medical funds banner on tatacapital.com",
+            "responding to the loyalty SMS we sent to premium customers"
+        ])
+        self.context["entry_scenario"] = self.entry_scenario
     
     def _get_ai_response(self, prompt, fallback_response):
         """Get AI response with full conversation context"""
@@ -568,6 +570,11 @@ Respond naturally as if you're having a real conversation:
             pass  # Will be added after AI response
         
         print(f"🧠 PROCESSING MESSAGE: '{message}' in stage '{self.conversation_stage}'")
+
+        direct_response = self._handle_pan_submission(message)
+        if direct_response:
+            self.full_chat_context.append((message, direct_response))
+            return direct_response
         
         # AI-FIRST APPROACH: Let AI handle everything with context
         ai_response = self._get_intelligent_ai_response(message)
@@ -712,8 +719,49 @@ Only return fields that have NEW information. If nothing new, return "NO_NEW_INF
             print(f"❌ AI INTELLIGENCE ERROR: {e}")
             return None
     
+    def _handle_pan_submission(self, message):
+        """Handle PAN inputs immediately to avoid stalled conversations"""
+        pan_match = re.search(r"\b([A-Z]{5}[0-9]{4}[A-Z])\b", message.upper())
+        if not pan_match:
+            return None
+
+        pan_number = pan_match.group(1).upper()
+
+        if self.conversation_stage == "kyc_verification":
+            name = self.context.get("name")
+            if name in customers:
+                customers[name]["kyc"] = True
+                customers[name]["last_verified"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.context.setdefault("kyc_documents", {})["pan"] = pan_number
+            self.conversation_stage = "sales_pitch"
+
+            response = (
+                "✅ **KYC Verification Completed!**\n\n"
+                f"Thanks for sharing your PAN ({pan_number}). Your identity is now fully verified."
+                "\n\nLet's move straight to your personalized loan offers!"
+            )
+
+            if self.context.get("customer_data"):
+                response += "\n\n" + self._show_loan_pitch()
+
+            return response
+
+        if self.conversation_stage == "kyc_upload":
+            self.context.setdefault("kyc_documents", {})["pan"] = pan_number
+            confirmation = (
+                "✅ **PAN Received & Verified!**\n\n"
+                f"Your PAN ({pan_number}) is validated instantly. I've already completed your credit assessment. Take a look at your decision below!"
+            )
+            return self._complete_underwriting_flow(confirmation)
+
+        return None
+
     def _handle_rule_based_response(self, message):
         """Fallback rule-based response handling"""
+        pan_response = self._handle_pan_submission(message)
+        if pan_response:
+            return pan_response
+
         msg = message.strip().lower()
         
         # Stage 1: Greeting & Identification
@@ -896,35 +944,6 @@ Please respond with:
 
 💡 Ready to get **instant approval**? Just say **"Yes"**! ✅"""
         
-        # Stage 5.5: Document Upload (Salary Slip) for Conditional Approval
-        elif self.conversation_stage == "salary_upload":
-            if any(word in msg for word in ["yes", "upload", "submit", "done"]):
-                # Simulate successful salary slip verification
-                self.conversation_stage = "underwriting"
-                return f"""✅ **Salary Slip Uploaded Successfully!**
-
-📄 **Document Verification:**
-- ✅ Latest salary slip received and verified
-- ✅ Income confirmation: Rs.{self.context.get('salary', 50000):,}/month
-- ✅ Employment verification completed
-- ✅ Bank statements cross-checked
-
-🎉 **Great news!** Your documents meet our requirements.
-
-⏳ **Processing your loan application with uploaded documents...**"""
-            else:
-                self.conversation_stage = "completed"
-                return """📄 **No problem!** You can upload your salary slip later.
-
-**Your conditional approval is valid for 30 days.**
-
-When ready:
-- 📱 Upload latest salary slip
-- 🏦 Visit our branch with documents
-- 📞 Call our support team
-
-Thank you for choosing Tata Capital! 🙏"""
-
         # Stage 5.5: KYC Upload for New Customers
         elif self.conversation_stage == "kyc_upload":
             if any(word in msg for word in ["yes", "proceed", "upload", "digital", "sure"]):
@@ -964,22 +983,20 @@ Thank you for your interest! 🙏"""
             if result["status"] == "Approved":
                 self.conversation_stage = "sanction"
                 return result["response"] + "\n\n" + self._offer_sanction_letter()
-            elif result["status"] == "Conditional":
-                # Move to salary upload stage if emi_ratio > 50, else allow optional upload
-                self.conversation_stage = "salary_upload"
-                ratio = result.get("emi_ratio", 0)
-                need_docs = ratio > 50
-                doc_text = "⚠️ EMI exceeds 50% of salary. Salary slip required for final approval." if need_docs else "✅ EMI within 50% of salary. Upload is optional but recommended for instant release."
-                return result["response"] + f"\n\n📄 **Document Verification Stage**\n{doc_text}\n\n➡️ Please upload latest salary slip (PDF/image) using the upload component below and then type 'uploaded'."
-            else:
-                self.conversation_stage = "completed"
-                return result["response"] + "\n\n" + self._end_conversation()
+            if result["status"] == "Conditional":
+                self.conversation_stage = "conditional_docs"
+                self.context["pending_documents"] = True
+                return result["response"] + "\n\n📤 Please upload your salary slip so we can finish the approval."
+
+            self.conversation_stage = "completed"
+            return result["response"] + "\n\n" + self._end_conversation()
         
         # Stage 7: Conditional Documentation
         elif self.conversation_stage == "conditional_docs":
             if any(word in msg for word in ["yes", "upload", "sure", "okay"]):
                 # Simulate document verification success
                 self.conversation_stage = "sanction"
+                self.context.pop("pending_documents", None)
                 return """✅ **Documents Verified Successfully!**
 
 🎉 **FINAL APPROVAL CONFIRMED!**
@@ -991,6 +1008,7 @@ All requirements met. Congratulations! 🎊
 """ + self._offer_sanction_letter()
             else:
                 self.conversation_stage = "completed"
+                self.context.pop("pending_documents", None)
                 return "No problem! You can upload documents later. Your conditional approval is valid for 30 days.\n\n" + self._end_conversation()
         
         # Stage 8: Sanction Letter Generation
@@ -998,11 +1016,11 @@ All requirements met. Congratulations! 🎊
             if any(word in msg for word in ["generate", "yes", "send", "create", "download"]):
                 return self._generate_sanction()
             else:
-                return "🎉 Your loan is **APPROVED**! Would you like me to generate your official sanction letter now?"
-        
-        # AI-powered intent detection and response
-        return self._get_ai_intent_response(message)
-    
+                return (
+                    "🎯 **Sanction Letter Ready!**\n\n"
+                    "Would you like me to generate your personalized sanction letter now? "
+                    "Just say 'Generate' or 'Send it over' whenever you're ready."
+                )
     def _get_ai_intent_response(self, message):
         """AI-powered intent detection and appropriate response"""
         try:
@@ -1060,15 +1078,17 @@ Make the response feel like a natural conversation between friends, not a busine
         
         # AI-enhanced greeting
         print("👋 GREETING: Attempting to generate AI-enhanced welcome message...")
-        ai_prompt = """
+        ai_prompt = f"""
         Create a warm, professional greeting for a loan assistant AI.
-        Include benefits of Tata Capital loans and ask for customer's name.
+        Mention that the customer arrived after {self.entry_scenario} so the experience feels personalised.
+        Include benefits of Tata Capital loans and ask for the customer's name.
         Keep it under 150 words, use emojis, and be engaging.
         """
         
         ai_greeting = self._get_ai_response(ai_prompt, "")
+        scenario_line = f"📢 We spotted that you dropped in after {self.entry_scenario}, so I've already lined up offers tailored to that journey!\n\n"
         
-        base_greeting = """🎉 **🎉 WELCOME TO TATA CAPITAL'S AI LOAN PLATFORM! 🎉** 🎉
+        base_greeting = scenario_line + """🎉 **🎉 WELCOME TO TATA CAPITAL'S AI LOAN PLATFORM! 🎉** 🎉
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🏆 **🏆 INDIA'S #1 MOST TRUSTED NBFC 🏆**
@@ -1102,8 +1122,7 @@ Make the response feel like a natural conversation between friends, not a busine
         
         if ai_greeting:
             return f"{ai_greeting}\n\n{base_greeting}"
-        else:
-            return base_greeting
+        return base_greeting
     
     def _identify_customer(self, message):
         # Extract name from message
@@ -1771,9 +1790,37 @@ Each loan type has **special benefits and rates**! 🎉"""
         # Step 2: Credit Score Check
         score = self.underwriting_agent.fetch_credit_score(name, customer_data)
         credit_msg = f"\n\n📊 **Credit Bureau Check**\nCredit Score: {score}/900\n"
-        
-        return kyc_result + credit_msg + "\n⏳ Running final eligibility assessment..."
+        intro = kyc_result + credit_msg + "\n✅ Final eligibility assessment complete!"
+        return self._complete_underwriting_flow(intro)
     
+    def _complete_underwriting_flow(self, intro_message=""):
+        """Execute underwriting, persist the result, and craft the follow-up copy."""
+        self.conversation_stage = "underwriting"
+        result = self._perform_integrated_loan_processing()
+        self._save_application(result)
+
+        status = result.get("status")
+        if status == "Approved":
+            self.conversation_stage = "sanction"
+            self.context.pop("pending_documents", None)
+            outcome = result["response"] + "\n\n" + self._offer_sanction_letter()
+        elif status == "Conditional":
+            self.conversation_stage = "conditional_docs"
+            self.context["pending_documents"] = True
+            outcome = result["response"] + "\n\n📤 Please upload your salary slip so we can finish the approval."
+        elif status == "Error":
+            self.conversation_stage = "completed"
+            self.context.pop("pending_documents", None)
+            outcome = result.get("response", "❌ Unable to process your loan application right now.")
+        else:
+            self.conversation_stage = "completed"
+            self.context.pop("pending_documents", None)
+            outcome = result["response"] + "\n\n" + self._end_conversation()
+
+        if intro_message:
+            return f"{intro_message}\n\n{outcome}"
+        return outcome
+
     def _offer_sanction_letter(self):
         return """📄 **📄 SANCTION LETTER READY FOR DOWNLOAD! 📄**
 
@@ -1947,61 +1994,72 @@ Each loan type has **special benefits and rates**! 🎉"""
         return emi
     
     def _make_loan_decision(self, requested_amount, credit_score, salary, pre_approved_limit, name):
-        """Make intelligent loan decision aligned to challenge spec"""
+        """Apply Challenge-II underwriting policy for Tata Capital"""
         confidence = random.randint(85, 98)
-        
-        # Calculate EMI for requested amount
+
+        # Calculate EMI for requested amount using default tenure of 24 months
         rate = self._calculate_interest_rate(credit_score, requested_amount)
         emi = self._calculate_emi(requested_amount, rate, 24)
-        emi_to_salary_ratio = (emi / salary) * 100
-        
-        # Hard rejections first per spec
+        emi_to_salary_ratio = (emi / salary) * 100 if salary else 100
+        two_x_limit = pre_approved_limit * 2
+
         if credit_score < 700:
             return {
                 "status": "Rejected",
-                "reason": "low_credit_score",
-                "confidence": confidence
+                "reason": "credit_score_below_threshold",
+                "confidence": confidence,
+                "rate": rate,
+                "emi": emi,
+                "emi_ratio": emi_to_salary_ratio,
+                "required_credit_score": 700
             }
-        if requested_amount > 2 * pre_approved_limit:
-            return {
-                "status": "Rejected",
-                "reason": "exceeds_2x_limit",
-                "confidence": confidence
-            }
-        
-        # Instant approval within limit
+
         if requested_amount <= pre_approved_limit:
             return {
                 "status": "Approved",
-                "reason": "instant_approval",
+                "reason": "within_limit",
                 "confidence": confidence,
                 "rate": rate,
                 "emi": emi,
-                "emi_ratio": emi_to_salary_ratio
+                "emi_ratio": emi_to_salary_ratio,
+                "approved_amount": requested_amount
             }
-        
-        # Conditional band (<= 2x limit): require salary slip; approve only if EMI <= 50%
-        if requested_amount <= 2 * pre_approved_limit:
-            decision = {
-                "status": "Conditional",
-                "reason": "docs_required",
-                "confidence": confidence,
-                "rate": rate,
-                "emi": emi,
-                "emi_ratio": emi_to_salary_ratio
-            }
-            # Hint to user if currently affordable
+
+        if requested_amount <= two_x_limit:
             if emi_to_salary_ratio <= 50:
-                decision["hint"] = "emi_within_50"
-            else:
-                decision["hint"] = "emi_above_50"
-            return decision
-        
-        # Fallback reject (shouldn't reach here)
+                return {
+                    "status": "Conditional",
+                    "reason": "requires_salary_slip",
+                    "confidence": confidence,
+                    "rate": rate,
+                    "emi": emi,
+                    "emi_ratio": emi_to_salary_ratio,
+                    "approved_amount": requested_amount,
+                    "documents": ["Latest salary slip", "Bank statement - last 6 months"]
+                }
+
+            max_affordable_amount = int(requested_amount * (50 / emi_to_salary_ratio)) if emi_to_salary_ratio else requested_amount
+            max_affordable_amount = max(0, max_affordable_amount)
+            max_affordable_amount = min(max_affordable_amount, two_x_limit)
+
+            return {
+                "status": "Rejected",
+                "reason": "emi_ratio_too_high",
+                "confidence": confidence,
+                "rate": rate,
+                "emi": emi,
+                "emi_ratio": emi_to_salary_ratio,
+                "max_affordable_amount": max_affordable_amount
+            }
+
         return {
             "status": "Rejected",
-            "reason": "unable_to_decide",
-            "confidence": confidence
+            "reason": "exceeds_two_x_limit",
+            "confidence": confidence,
+            "rate": rate,
+            "emi": emi,
+            "emi_ratio": emi_to_salary_ratio,
+            "max_eligible_amount": two_x_limit
         }
     
     def _create_integrated_response(self, name, credit_score, salary, requested_amount, 
@@ -2040,20 +2098,18 @@ Each loan type has **special benefits and rates**! 🎉"""
         
         # Decision section
         response += "🎯 **LOAN DECISION:**\n"
-        
-        if decision["status"] == "Approved":
-            # Generate realistic loan details
+        decision_status = decision["status"]
+
+        if decision_status == "Approved":
             import datetime
+            approved_amount = decision.get("approved_amount", requested_amount)
+            processing_fee = int(approved_amount * 0.02)
             loan_ref_no = f"TC/PL/{random.randint(100000, 999999)}/2024"
             sanction_date = datetime.datetime.now().strftime("%d %B %Y")
             disbursal_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%d %B %Y")
-            
-            # Check if this is a reduced amount approval
-            if decision.get("reason") == "reduced_amount_approval":
-                approved_amount = decision["approved_amount"]
-                processing_fee = int(approved_amount * 0.02)
-                
-                response += f"""🎉 **🚀 INSTANT LOAN APPROVAL! 🚀** ✅
+            salary_ratio = (decision["emi"] / salary * 100) if salary else decision.get("emi_ratio", 0)
+
+            response += f"""🎉 **🚀 INSTANT LOAN APPROVAL! 🚀** ✅
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🏆 **CONGRATULATIONS {name.upper()}!** 🏆
@@ -2062,7 +2118,7 @@ Each loan type has **special benefits and rates**! 🎉"""
 
 📋 **📋 OFFICIAL LOAN APPROVAL DETAILS:**
 - 🆔 **Loan Reference:** {loan_ref_no}
-- 💰 **Sanctioned Amount:** Rs.{approved_amount:,} (Instant Approval)
+- 💰 **Sanctioned Amount:** Rs.{approved_amount:,}
 - 📈 **Interest Rate:** {decision['rate']:.1f}% p.a. (Current Market Rate)
 - 💳 **Monthly EMI:** Rs.{decision['emi']:,.0f}
 - ⏰ **Loan Tenure:** 24 months
@@ -2077,87 +2133,73 @@ Each loan type has **special benefits and rates**! 🎉"""
 - 💸 **Total Payable:** Rs.{int(decision['emi'] * 24):,}
 
 ✅ **✅ WHY YOU'RE INSTANTLY APPROVED:**
-- 🌟 **Smart AI Assessment:** Optimized amount for your profile
-- 💪 **Perfect EMI-to-Income Ratio:** Comfortable repayment
-- 🎯 **Digital Document Verification:** All checks completed
-- ✨ **AI Risk Assessment:** Low Risk Profile
-- 🚀 **Fast-Track Processing:** Premium eligibility
-
-💡 **💡 SMART APPROVAL LOGIC:**
-- 📋 **Requested:** Rs.{requested_amount:,}
-- ✅ **Approved:** Rs.{approved_amount:,} (Guaranteed instant disbursal)
-- 📈 **Future Upgrade:** Apply for higher amounts after 6 months
-
-🎊 **🎊 NEXT STEPS - YOUR MONEY IS READY! 🎊**
-- 📄 **Step 1:** Download your digital sanction letter (PDF)
-- 🎯 **Step 2:** Digital acceptance - No branch visit needed!
-- 💰 **Step 3:** Money in your account within 2 hours!
-
-**🔥 SPECIAL: Instant digital processing - Your documents are pre-verified! 🔥**"""
-                
-            else:
-                # Regular approval for requested amount
-                processing_fee = int(requested_amount * 0.02)
-                
-                response += f"""🎉 **🚀 INSTANT LOAN APPROVAL! 🚀** ✅
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏆 **CONGRATULATIONS {name.upper()}!** 🏆
-**✨ YOUR AI-POWERED LOAN HAS BEEN APPROVED! ✨**
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📋 **📋 OFFICIAL LOAN APPROVAL DETAILS:**
-- 🆔 **Loan Reference:** {loan_ref_no}
-- 💰 **Sanctioned Amount:** Rs.{requested_amount:,}
-- 📈 **Interest Rate:** {decision['rate']:.1f}% p.a. (Current Market Rate)
-- 💳 **Monthly EMI:** Rs.{decision['emi']:,.0f}
-- ⏰ **Loan Tenure:** 24 months
-- 🤖 **AI Confidence Score:** {decision['confidence']}%
-- 📅 **Sanction Date:** {sanction_date}
-- 💸 **Expected Disbursal:** {disbursal_date}
-
-💰 **💰 FINANCIAL BREAKDOWN:**
-- 💵 **Principal Amount:** Rs.{requested_amount:,}
-- 🏦 **Processing Fee:** Rs.{processing_fee:,} (2.0%)
-- 📊 **Total Interest:** Rs.{int(decision['emi'] * 24 - requested_amount):,}
-- 💸 **Total Payable:** Rs.{int(decision['emi'] * 24):,}
-
-✅ **✅ WHY YOU'RE INSTANTLY APPROVED:**
 - 🌟 **Excellent Credit Score:** {credit_score}/900
-- 💪 **Strong Repayment Capacity:** EMI only {(decision['emi']/salary*100):.1f}% of salary
-- 🎯 **Digital Document Verification:** All checks completed automatically
-- ✨ **AI Risk Assessment:** Low Risk Profile
-- 🚀 **Fast-Track Eligibility:** Premium Customer
+- 💪 **Comfortable EMI:** {salary_ratio:.1f}% of monthly salary
+- 🎯 **All checks cleared:** Within pre-approved limit
+- 🚀 **Fast-Track Eligibility:** Digital disbursal ready
 
 🎊 **🎊 NEXT STEPS - YOUR MONEY IS READY! 🎊**
 - 📄 **Step 1:** Download your digital sanction letter (PDF)
-- � **Step 2:** Digital acceptance - No branch visit needed!
-- 💰 **Step 3:** Money in your account within 2 hours!
+- 🎯 **Step 2:** Accept digitally - no branch visit required
+- 💰 **Step 3:** Funds credited within 2 hours
 
 **🔥 SPECIAL: All documents pre-verified through AI - Instant disbursal! 🔥**"""
 
-        else:  # Rejected - provide alternative amount
-            max_eligible = min(pre_approved_limit, int(salary * 4))
-            response += f"""LOAN ASSESSMENT COMPLETE - ALTERNATIVE APPROVAL!
+            if approved_amount != requested_amount:
+                response += f"\n\nℹ️ We optimized the sanction to Rs.{approved_amount:,} for instant approval. Your original request was Rs.{requested_amount:,}."
 
-Hello {name.upper()}, we have great news for you!
+        elif decision_status == "Conditional":
+            response += f"""📝 **CONDITIONAL APPROVAL – DOCUMENTS REQUIRED**
 
-CURRENT ASSESSMENT:
-- Amount Requested: Rs.{requested_amount:,}
-- Alternative Approved Amount: Rs.{max_eligible:,}
-- Your Credit Score: {credit_score}/900
-- Monthly Salary: Rs.{salary:,}
-- Interest Rate: 12.5% p.a. (current market rate)
+Great news, {name.upper()}! You're just one step away from final approval.
 
-INSTANT APPROVAL AVAILABLE:
-We can instantly approve Rs.{max_eligible:,} for you today with the following benefits:
-- No document uploads required
-- Instant digital approval 
-- Money in your account within 24 hours
-- Current market rate of 12.5% p.a.
+✅ **Eligibility Check:**
+- Requested Amount: Rs.{requested_amount:,}
+- Within 2× pre-approved limit: Rs.{pre_approved_limit*2:,}
+- Estimated EMI: Rs.{decision['emi']:,.0f}
+- EMI to Salary Ratio: {decision['emi_ratio']:.1f}% (policy max 50%)
 
-Would you like to proceed with Rs.{max_eligible:,} instant approval?"""
-            
+📄 **Action Required:**
+- Upload latest salary slip (PDF/JPG/PNG)
+- Provide last 6 months bank statement (optional)
+
+Once we receive your documents, the Underwriting Agent will finalize the approval instantly. Click the upload button below to continue."""
+
+        else:
+            reason = decision.get("reason", "general")
+
+            if reason == "credit_score_below_threshold":
+                response += f"""❌ **APPLICATION DECLINED – CREDIT SCORE**
+
+We require a minimum credit score of 700. Your current score is {credit_score}/900.
+
+✅ **Recommended next steps:**
+- Clear outstanding dues and maintain timely repayments
+- Keep credit utilization below 30%
+- Reapply in 3-6 months once your score improves
+"""
+
+            elif reason == "emi_ratio_too_high":
+                affordable = decision.get("max_affordable_amount")
+                response += f"""❌ **APPLICATION DECLINED – EMI TOO HIGH**
+
+The EMI for Rs.{requested_amount:,} would be {decision['emi_ratio']:.1f}% of your salary, exceeding the 50% policy cap.
+
+💡 Try a lower amount for instant approval. Suggested safe limit: Rs.{affordable:,}.
+"""
+
+            elif reason == "exceeds_two_x_limit":
+                max_allowed = decision.get("max_eligible_amount", pre_approved_limit * 2)
+                response += f"""❌ **APPLICATION DECLINED – ABOVE ELIGIBILITY**
+
+Policy allows a maximum of Rs.{max_allowed:,} (2× your pre-approved limit).
+
+Please choose an amount within this cap for us to reassess instantly.
+"""
+
+            else:
+                response += "❌ We are unable to approve this loan request right now. Let's revisit the details together."
+
         response += "\n\nReady to proceed? Let me know your decision!"
         
         return response
@@ -2582,8 +2624,11 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             proceed_btn = gr.Button("🚀 Proceed", variant="outline")
             help_btn = gr.Button("❓ Help", variant="outline")
 
-        # Conditional stage: Salary slip upload (visible only when needed)
-        upload_salary = gr.File(label="📄 Upload Salary Slip (PDF/Image)", file_types=[".pdf", ".png", ".jpg", ".jpeg"], visible=False)
+        upload_salary = gr.File(
+            label="📄 Upload Salary Slip (PDF/Image)",
+            file_types=[".pdf", ".png", ".jpg", ".jpeg"],
+            visible=False
+        )
         
         # Handle all interactions with dynamic button updates
         def respond(message, history):
@@ -2614,8 +2659,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             while len(button_updates) < 4:
                 button_updates.append(gr.Button("", visible=False))
 
-            # Toggle upload visibility based on stage
-            upload_visibility = gr.update(visible=(master.conversation_stage == "salary_upload"))
+            upload_visibility = gr.update(visible=(master.conversation_stage == "conditional_docs"))
             
             return history, "", *button_updates, upload_visibility
         
@@ -2669,40 +2713,9 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             while len(button_updates) < 4:
                 button_updates.append(gr.Button("", visible=False))
 
-            # Toggle upload visibility based on stage
-            upload_visibility = gr.update(visible=(master.conversation_stage == "salary_upload"))
-
+            upload_visibility = gr.update(visible=(master.conversation_stage == "conditional_docs"))
+            
             return updated_history, "", *button_updates, upload_visibility
-
-        def handle_salary_upload(file, history):
-            """Simulate verifying uploaded salary slip and finalize approval"""
-            if history is None:
-                history = []
-            if file is None:
-                # Keep asking for upload
-                history.append({"role": "assistant", "content": "📄 Please upload your salary slip (PDF/Image) to proceed."})
-                return history, "", gr.Button.update(), gr.Button.update(), gr.Button.update(), gr.Button.update(), gr.update(visible=True)
-
-            # Simulate verification success
-            master.conversation_stage = "sanction"
-            verified_msg = "✅ Salary slip verified successfully! Your application is now fully approved."
-            next_steps = master._offer_sanction_letter()
-            history.append({"role": "assistant", "content": f"{verified_msg}\n\n{next_steps}"})
-
-            # Update buttons based on sanction stage
-            response_options = master._get_response_options()
-            button_updates = []
-            for i, option in enumerate(response_options[:4]):
-                if option and option.strip():
-                    button_updates.append(gr.Button(option, visible=True))
-                else:
-                    button_updates.append(gr.Button("", visible=False))
-
-            while len(button_updates) < 4:
-                button_updates.append(gr.Button("", visible=False))
-
-            # Hide upload after verification
-            return history, "", *button_updates, gr.update(visible=False)
         
         def reset_conversation():
             reset_master()
@@ -2772,7 +2785,57 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
         proceed_btn.click(lambda history: button_click("Yes, proceed", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
         help_btn.click(lambda history: button_click("Help me", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
 
+        def handle_salary_upload(file, history):
+            """Process uploaded salary slips and advance the conversation"""
+            if history is None:
+                history = []
+            updated_history = history.copy()
+
+            def build_button_updates():
+                options = master._get_response_options()
+                updates = []
+                for option in options[:4]:
+                    if option and option.strip():
+                        updates.append(gr.Button(option, visible=True))
+                    else:
+                        updates.append(gr.Button("", visible=False))
+                while len(updates) < 4:
+                    updates.append(gr.Button("", visible=False))
+                return updates
+
+            if master.conversation_stage != "conditional_docs":
+                updated_history.append({"role": "assistant", "content": "ℹ️ No documents are required right now. I'll request them if needed."})
+                return updated_history, "", *build_button_updates(), gr.update(visible=False)
+
+            if not file:
+                updated_history.append({"role": "assistant", "content": "📄 Please upload your salary slip (PDF/Image) to proceed."})
+                return updated_history, "", *build_button_updates(), gr.update(visible=True)
+
+            file_name = None
+            if isinstance(file, dict):
+                file_name = file.get("name") or file.get("orig_name")
+            elif hasattr(file, "name"):
+                file_name = file.name
+            if isinstance(file_name, str):
+                display_name = os.path.basename(file_name)
+            else:
+                display_name = "salary slip"
+
+            updated_history.append({"role": "user", "content": f"📎 Uploaded salary slip ({display_name})"})
+
+            master.conversation_stage = "sanction"
+            master.context.pop("pending_documents", None)
+            verified_msg = "✅ Salary slip verified successfully! Your application is now fully approved."
+            next_steps = master._offer_sanction_letter()
+            updated_history.append({"role": "assistant", "content": f"{verified_msg}\n\n{next_steps}"})
+
+            button_updates = build_button_updates()
+            return updated_history, "", *button_updates, gr.update(visible=False)
+
         upload_salary.upload(handle_salary_upload, inputs=[upload_salary, chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        
+
+    
     with gr.Tab("📊 Analytics Dashboard"):
         gr.Markdown("### Loan Application Analytics")
         
