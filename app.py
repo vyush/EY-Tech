@@ -331,7 +331,8 @@ class UnderwritingAgent:
 🎊 Congratulations! Your loan is approved instantly!"""
             result["status"] = "Approved"
         
-        elif amount <= 2 * limit and emi_to_salary_ratio <= 50:
+        elif amount <= 2 * limit:
+            # Conditional approval path requires salary slip if EMI ratio > 50%
             result["decision"] = f"""📝 **CONDITIONAL APPROVAL**
 ━━━━━━━━━━━━━━━━━━━━
 💰 Requested: Rs.{amount:,}
@@ -342,10 +343,12 @@ class UnderwritingAgent:
 ✅ Your application is conditionally approved!
 
 📄 **Please upload:**
-- Latest 3 months salary slips
-- Last 6 months bank statement
+- Latest salary slip (last month)
+- Bank statement (last 3 months)
 
-Upload these and get instant approval!"""
+{"✅ Documents optional as EMI is within 50% of salary" if emi_to_salary_ratio <= 50 else "⚠️ Required to verify affordability as EMI exceeds 50% of salary"}
+
+After upload, your approval will be finalized instantly!"""
             result["status"] = "Conditional"
         
         else:
@@ -893,6 +896,35 @@ Please respond with:
 
 💡 Ready to get **instant approval**? Just say **"Yes"**! ✅"""
         
+        # Stage 5.5: Document Upload (Salary Slip) for Conditional Approval
+        elif self.conversation_stage == "salary_upload":
+            if any(word in msg for word in ["yes", "upload", "submit", "done"]):
+                # Simulate successful salary slip verification
+                self.conversation_stage = "underwriting"
+                return f"""✅ **Salary Slip Uploaded Successfully!**
+
+📄 **Document Verification:**
+- ✅ Latest salary slip received and verified
+- ✅ Income confirmation: Rs.{self.context.get('salary', 50000):,}/month
+- ✅ Employment verification completed
+- ✅ Bank statements cross-checked
+
+🎉 **Great news!** Your documents meet our requirements.
+
+⏳ **Processing your loan application with uploaded documents...**"""
+            else:
+                self.conversation_stage = "completed"
+                return """📄 **No problem!** You can upload your salary slip later.
+
+**Your conditional approval is valid for 30 days.**
+
+When ready:
+- 📱 Upload latest salary slip
+- 🏦 Visit our branch with documents
+- 📞 Call our support team
+
+Thank you for choosing Tata Capital! 🙏"""
+
         # Stage 5.5: KYC Upload for New Customers
         elif self.conversation_stage == "kyc_upload":
             if any(word in msg for word in ["yes", "proceed", "upload", "digital", "sure"]):
@@ -932,6 +964,13 @@ Thank you for your interest! 🙏"""
             if result["status"] == "Approved":
                 self.conversation_stage = "sanction"
                 return result["response"] + "\n\n" + self._offer_sanction_letter()
+            elif result["status"] == "Conditional":
+                # Move to salary upload stage if emi_ratio > 50, else allow optional upload
+                self.conversation_stage = "salary_upload"
+                ratio = result.get("emi_ratio", 0)
+                need_docs = ratio > 50
+                doc_text = "⚠️ EMI exceeds 50% of salary. Salary slip required for final approval." if need_docs else "✅ EMI within 50% of salary. Upload is optional but recommended for instant release."
+                return result["response"] + f"\n\n📄 **Document Verification Stage**\n{doc_text}\n\n➡️ Please upload latest salary slip (PDF/image) using the upload component below and then type 'uploaded'."
             else:
                 self.conversation_stage = "completed"
                 return result["response"] + "\n\n" + self._end_conversation()
@@ -1908,7 +1947,7 @@ Each loan type has **special benefits and rates**! 🎉"""
         return emi
     
     def _make_loan_decision(self, requested_amount, credit_score, salary, pre_approved_limit, name):
-        """Make intelligent loan decision"""
+        """Make intelligent loan decision aligned to challenge spec"""
         confidence = random.randint(85, 98)
         
         # Calculate EMI for requested amount
@@ -1916,56 +1955,54 @@ Each loan type has **special benefits and rates**! 🎉"""
         emi = self._calculate_emi(requested_amount, rate, 24)
         emi_to_salary_ratio = (emi / salary) * 100
         
-        if credit_score < 650:
-            # Approve for a smaller amount instead of rejecting
-            approved_amount = min(pre_approved_limit // 2, int(salary * 2.5))
-            if approved_amount >= 50000:  # Minimum loan amount
-                rate = self._calculate_interest_rate(credit_score, approved_amount)
-                emi = self._calculate_emi(approved_amount, rate, 24)
-                return {
-                    "status": "Approved",
-                    "reason": "reduced_amount_approval",
-                    "confidence": confidence,
-                    "rate": rate,
-                    "emi": emi,
-                    "approved_amount": approved_amount,
-                    "original_request": requested_amount
-                }
-            else:
-                return {
-                    "status": "Rejected",
-                    "reason": "low_credit_score",
-                    "confidence": confidence
-                }
-        elif requested_amount <= pre_approved_limit and emi_to_salary_ratio <= 45:
+        # Hard rejections first per spec
+        if credit_score < 700:
+            return {
+                "status": "Rejected",
+                "reason": "low_credit_score",
+                "confidence": confidence
+            }
+        if requested_amount > 2 * pre_approved_limit:
+            return {
+                "status": "Rejected",
+                "reason": "exceeds_2x_limit",
+                "confidence": confidence
+            }
+        
+        # Instant approval within limit
+        if requested_amount <= pre_approved_limit:
             return {
                 "status": "Approved",
                 "reason": "instant_approval",
                 "confidence": confidence,
                 "rate": rate,
-                "emi": emi
+                "emi": emi,
+                "emi_ratio": emi_to_salary_ratio
             }
-        else:
-            # Instead of conditional approval, approve for maximum eligible amount
-            approved_amount = min(pre_approved_limit, int(salary * 4))
-            if approved_amount >= 50000:
-                rate = self._calculate_interest_rate(credit_score, approved_amount)
-                emi = self._calculate_emi(approved_amount, rate, 24)
-                return {
-                    "status": "Approved",
-                    "reason": "reduced_amount_approval",
-                    "confidence": confidence,
-                    "rate": rate,
-                    "emi": emi,
-                    "approved_amount": approved_amount,
-                    "original_request": requested_amount
-                }
+        
+        # Conditional band (<= 2x limit): require salary slip; approve only if EMI <= 50%
+        if requested_amount <= 2 * pre_approved_limit:
+            decision = {
+                "status": "Conditional",
+                "reason": "docs_required",
+                "confidence": confidence,
+                "rate": rate,
+                "emi": emi,
+                "emi_ratio": emi_to_salary_ratio
+            }
+            # Hint to user if currently affordable
+            if emi_to_salary_ratio <= 50:
+                decision["hint"] = "emi_within_50"
             else:
-                return {
-                    "status": "Rejected",
-                    "reason": "exceeds_limit",
-                    "confidence": confidence
-                }
+                decision["hint"] = "emi_above_50"
+            return decision
+        
+        # Fallback reject (shouldn't reach here)
+        return {
+            "status": "Rejected",
+            "reason": "unable_to_decide",
+            "confidence": confidence
+        }
     
     def _create_integrated_response(self, name, credit_score, salary, requested_amount, 
                                   pre_approved_limit, offerings, decision):
@@ -2544,6 +2581,9 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             no_btn = gr.Button("❌ Not Interested", variant="outline")
             proceed_btn = gr.Button("🚀 Proceed", variant="outline")
             help_btn = gr.Button("❓ Help", variant="outline")
+
+        # Conditional stage: Salary slip upload (visible only when needed)
+        upload_salary = gr.File(label="📄 Upload Salary Slip (PDF/Image)", file_types=[".pdf", ".png", ".jpg", ".jpeg"], visible=False)
         
         # Handle all interactions with dynamic button updates
         def respond(message, history):
@@ -2573,8 +2613,11 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             # Ensure we always return 4 button updates
             while len(button_updates) < 4:
                 button_updates.append(gr.Button("", visible=False))
+
+            # Toggle upload visibility based on stage
+            upload_visibility = gr.update(visible=(master.conversation_stage == "salary_upload"))
             
-            return history, "", *button_updates
+            return history, "", *button_updates, upload_visibility
         
         def button_click(message, history):
             """Handle button clicks while preserving chat history"""
@@ -2625,15 +2668,48 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             # Ensure we always return 4 button updates
             while len(button_updates) < 4:
                 button_updates.append(gr.Button("", visible=False))
-            
-            return updated_history, "", *button_updates
+
+            # Toggle upload visibility based on stage
+            upload_visibility = gr.update(visible=(master.conversation_stage == "salary_upload"))
+
+            return updated_history, "", *button_updates, upload_visibility
+
+        def handle_salary_upload(file, history):
+            """Simulate verifying uploaded salary slip and finalize approval"""
+            if history is None:
+                history = []
+            if file is None:
+                # Keep asking for upload
+                history.append({"role": "assistant", "content": "📄 Please upload your salary slip (PDF/Image) to proceed."})
+                return history, "", gr.Button.update(), gr.Button.update(), gr.Button.update(), gr.Button.update(), gr.update(visible=True)
+
+            # Simulate verification success
+            master.conversation_stage = "sanction"
+            verified_msg = "✅ Salary slip verified successfully! Your application is now fully approved."
+            next_steps = master._offer_sanction_letter()
+            history.append({"role": "assistant", "content": f"{verified_msg}\n\n{next_steps}"})
+
+            # Update buttons based on sanction stage
+            response_options = master._get_response_options()
+            button_updates = []
+            for i, option in enumerate(response_options[:4]):
+                if option and option.strip():
+                    button_updates.append(gr.Button(option, visible=True))
+                else:
+                    button_updates.append(gr.Button("", visible=False))
+
+            while len(button_updates) < 4:
+                button_updates.append(gr.Button("", visible=False))
+
+            # Hide upload after verification
+            return history, "", *button_updates, gr.update(visible=False)
         
         def reset_conversation():
             reset_master()
             return []
         
         # Event handlers with dynamic button updates
-        msg.submit(respond, [msg, chatbot], [chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        msg.submit(respond, [msg, chatbot], [chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
         
         # Dynamic response buttons - use a simple approach that gets current button text from master agent
         def option1_click(history):
@@ -2656,48 +2732,47 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Tata Capital Loan Assistant") as d
             btn_text = options[3] if len(options) > 3 and options[3] else "Tell me about services"
             return button_click(btn_text, history)
         
-        option1_btn.click(option1_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        option2_btn.click(option2_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        option3_btn.click(option3_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        option4_btn.click(option4_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        option1_btn.click(option1_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        option2_btn.click(option2_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        option3_btn.click(option3_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        option4_btn.click(option4_click, inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
         
         # Quick action buttons
-        hello_btn.click(lambda history: button_click("Hello", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        existing_btn.click(lambda history: button_click("I'm an existing customer", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
-        new_btn.click(lambda history: button_click("I'm a new customer", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        hello_btn.click(lambda history: button_click("Hello", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        existing_btn.click(lambda history: button_click("I'm an existing customer", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        new_btn.click(lambda history: button_click("I'm a new customer", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
         
         def reset_with_buttons():
             reset_master()
-            return [], "", gr.Button("👋 Hello, I'm ready to start", visible=True), gr.Button("🆔 I'm an existing customer", visible=True), gr.Button("🆕 I'm new to Tata Capital", visible=True), gr.Button("❓ Tell me about your services", visible=True)
+            return [], "", gr.Button("👋 Hello, I'm ready to start", visible=True), gr.Button("🆔 I'm an existing customer", visible=True), gr.Button("🆕 I'm new to Tata Capital", visible=True), gr.Button("❓ Tell me about your services", visible=True), gr.update(visible=False)
         
-        reset_btn.click(reset_with_buttons, outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn])
+        reset_btn.click(reset_with_buttons, outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
         
         # Loan type buttons
-        personal_btn.click(lambda history: button_click("Personal Loan", history), inputs=[chatbot], outputs=[chatbot, msg])
-        business_btn.click(lambda history: button_click("Business Loan", history), inputs=[chatbot], outputs=[chatbot, msg])
-        wedding_btn.click(lambda history: button_click("Wedding Loan", history), inputs=[chatbot], outputs=[chatbot, msg])
-        medical_btn.click(lambda history: button_click("Medical Loan", history), inputs=[chatbot], outputs=[chatbot, msg])
+        personal_btn.click(lambda history: button_click("Personal Loan", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        business_btn.click(lambda history: button_click("Business Loan", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        wedding_btn.click(lambda history: button_click("Wedding Loan", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        medical_btn.click(lambda history: button_click("Medical Loan", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
         
         # Salary buttons
-        salary_30k_btn.click(lambda history: button_click("My salary is 30000", history), inputs=[chatbot], outputs=[chatbot, msg])
-        salary_50k_btn.click(lambda history: button_click("My salary is 50000", history), inputs=[chatbot], outputs=[chatbot, msg])
-        salary_75k_btn.click(lambda history: button_click("My salary is 75000", history), inputs=[chatbot], outputs=[chatbot, msg])
-        salary_1l_btn.click(lambda history: button_click("My salary is 100000", history), inputs=[chatbot], outputs=[chatbot, msg])
+        salary_30k_btn.click(lambda history: button_click("My salary is 30000", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        salary_50k_btn.click(lambda history: button_click("My salary is 50000", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        salary_75k_btn.click(lambda history: button_click("My salary is 75000", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        salary_1l_btn.click(lambda history: button_click("My salary is 100000", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
         
         # Amount buttons
-        amount_2l_btn.click(lambda history: button_click("I need 2 lakh", history), inputs=[chatbot], outputs=[chatbot, msg])
-        amount_3l_btn.click(lambda history: button_click("I need 3 lakh", history), inputs=[chatbot], outputs=[chatbot, msg])
-        amount_5l_btn.click(lambda history: button_click("I need 5 lakh", history), inputs=[chatbot], outputs=[chatbot, msg])
-        amount_10l_btn.click(lambda history: button_click("I need 10 lakh", history), inputs=[chatbot], outputs=[chatbot, msg])
+        amount_2l_btn.click(lambda history: button_click("I need 2 lakh", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        amount_3l_btn.click(lambda history: button_click("I need 3 lakh", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        amount_5l_btn.click(lambda history: button_click("I need 5 lakh", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        amount_10l_btn.click(lambda history: button_click("I need 10 lakh", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
         
         # Response buttons
-        yes_btn.click(lambda history: button_click("Yes, I'm interested", history), inputs=[chatbot], outputs=[chatbot, msg])
-        no_btn.click(lambda history: button_click("No, not interested", history), inputs=[chatbot], outputs=[chatbot, msg])
-        proceed_btn.click(lambda history: button_click("Yes, proceed", history), inputs=[chatbot], outputs=[chatbot, msg])
-        help_btn.click(lambda history: button_click("Help me", history), inputs=[chatbot], outputs=[chatbot, msg])
-        
+        yes_btn.click(lambda history: button_click("Yes, I'm interested", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        no_btn.click(lambda history: button_click("No, not interested", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        proceed_btn.click(lambda history: button_click("Yes, proceed", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
+        help_btn.click(lambda history: button_click("Help me", history), inputs=[chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
 
-    
+        upload_salary.upload(handle_salary_upload, inputs=[upload_salary, chatbot], outputs=[chatbot, msg, option1_btn, option2_btn, option3_btn, option4_btn, upload_salary])
     with gr.Tab("📊 Analytics Dashboard"):
         gr.Markdown("### Loan Application Analytics")
         
